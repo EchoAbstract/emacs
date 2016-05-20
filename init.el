@@ -68,30 +68,30 @@
 
 (when (equal (symbol-name system-type) "darwin")
   (use-package exec-path-from-shell
-	       :ensure t
-	       :if (and (eq system-type 'darwin) (display-graphic-p))
-	       :config
-	       (progn
-		 (when (string-match-p "/bash$" (getenv "SHELL"))
-		   ;; Use a non-interactive login shell.  A login shell, because my
-		   ;; environment variables are mostly set in `.zprofile'.
-		   (setq exec-path-from-shell-arguments '("-l")))
+               :ensure t
+               :if (and (eq system-type 'darwin) (display-graphic-p))
+               :config
+               (progn
+                 (when (string-match-p "/bash$" (getenv "SHELL"))
+                   ;; Use a non-interactive login shell.  A login shell, because my
+                   ;; environment variables are mostly set in `.zprofile'.
+                   (setq exec-path-from-shell-arguments '("-l")))
 
-		 (dolist (var '("EMAIL" "PYTHONPATH" "INFOPATH" "JAVA_OPTS"))
-		   (add-to-list 'exec-path-from-shell-variables var))
+                 (dolist (var '("EMAIL" "PYTHONPATH" "INFOPATH" "JAVA_OPTS"))
+                   (add-to-list 'exec-path-from-shell-variables var))
 
-		 (exec-path-from-shell-initialize)
+                 (exec-path-from-shell-initialize)
 
-		 (setq user-mail-address (getenv "EMAIL"))
+                 (setq user-mail-address (getenv "EMAIL"))
 
-		 ;; Re-initialize the `Info-directory-list' from $INFOPATH.  Since package.el
-		 ;; already initializes info, we need to explicitly add the $INFOPATH
-		 ;; directories to `Info-directory-list'.  We reverse the list of info paths
-		 ;; to prepend them in proper order subsequently
-		 (with-eval-after-load 'info
-		   (dolist (dir (nreverse (parse-colon-path (getenv "INFOPATH"))))
-		     (when dir
-		       (add-to-list 'Info-directory-list dir))))))
+                 ;; Re-initialize the `Info-directory-list' from $INFOPATH.  Since package.el
+                 ;; already initializes info, we need to explicitly add the $INFOPATH
+                 ;; directories to `Info-directory-list'.  We reverse the list of info paths
+                 ;; to prepend them in proper order subsequently
+                 (with-eval-after-load 'info
+                   (dolist (dir (nreverse (parse-colon-path (getenv "INFOPATH"))))
+                     (when dir
+                       (add-to-list 'Info-directory-list dir))))))
   (if (display-graphic-p)
       (init/darwin-init)))
 
@@ -104,6 +104,12 @@
   (set-face-font 'default        "M+ 1m light-13")
   (set-face-font 'variable-pitch "Noto Sans-13")
   (set-face-font 'fixed-pitch    "M+ 1m light-13")
+  ;; specify fonts for all emoji characters
+  (when (member "Noto Color Emoji" (font-family-list))
+    (set-fontset-font t 'unicode "Noto Color Emoji" nil 'prepend))
+
+  (when (member "Apple Color Emoji" (font-family-list))
+    (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend))
 
   ;; Set the frame title for Quantified Self Capture
   (setq frame-title-format " %b -- %m -- Emacs")
@@ -127,13 +133,42 @@
 
 ;; TODO: Setup company emoji complete
 (use-package company-emoji
-	     :ensure t)
+             :ensure t)
+
+;; Toolbar/menubar
+(if (fboundp 'tool-bar-mode)
+    (tool-bar-mode -1))			; Disable the toolbar
+
+(if (fboundp 'menu-bar-mode)
+    (menu-bar-mode nil))		; Disable the menubar (Doesn't impact os-x)
+
+(use-package form-feed
+  :ensure t
+  :init (progn
+          (add-hook 'emacs-lisp-mode-hook 'form-feed-mode))
+  :diminish form-feed-mode)
 
 
-;;; Let's start enabling modes
-
 ;;; Overall Stuff
 
+(fset 'yes-or-no-p 'y-or-n-p)		; Make y/n prompts easier
+
+;; General Vars
+(setq-default fill-column 78)		; Wider fill by default
+(setq-default indent-tabs-mode nil)     ; Prevent tabs by default
+(setq-default tab-width 2)              ; If we are using tabs, make them small
+(setq suggest-key-bindings t)		; Let emacs teach me
+(setq visible-bell t)			; No beeps!
+
+
+;; Toggle all the things!
+(auto-insert-mode 1)			; Prompt for templates, TODO: Better?
+(show-paren-mode 1)			; I like to see my parens
+(display-time)				; Full-screen emacs without a time?
+(column-number-mode 1)			; What's my current column?
+
+
+;; Global packages
 (use-package helm                       ; Powerful minibuffer input framework
   :ensure t
   :bind (
@@ -183,35 +218,31 @@
 
 ;;; Programming
 (use-package flycheck
-	     :ensure t)
+             :ensure t)
 
-(use-package helm-company
-	     :ensure t
-	     :config (progn
-		       (define-key company-mode-map (kbd "C-:") 'helm-company)
-		       (define-key company-active-map (kbd "C-:") 'helm-company)))
 (use-package company
-	     :ensure t
-	     :init (progn
-		     (add-hook 'c++-mode-hook 'company-mode)
-		     (add-hook 'c-mode-hook 'company-mode)
-		     (add-hook 'obj-c-mode-hook 'company-mode))
-	     :config (progn
-		       (setq company-backends (delete 'company-semantic company-backends))
-		       (add-to-list 'company-backends 'company-rtags)
-		       (add-to-list 'company-backends 'company-emoji)
-		       (add-to-list 'company-backends 'company-irony)))
+             :ensure t
+             :init (progn
+                     (add-hook 'c++-mode-hook 'company-mode)
+                     (add-hook 'c-mode-hook 'company-mode)
+                     (add-hook 'obj-c-mode-hook 'company-mode)
+                     (global-company-mode))
+             :config (progn
+                       (setq company-backends (delete 'company-semantic company-backends))
+                       (add-to-list 'company-backends 'company-rtags)
+                       (add-to-list 'company-backends 'company-emoji)
+                       (add-to-list 'company-backends 'company-irony)))
 
 (use-package projectile
-	     :ensure t
-	     :demand t)
+             :ensure t
+             :demand t)
 
 (use-package magit
-	     :ensure t)
+             :ensure t)
 
 ;;; C++
 (use-package auto-complete-clang
-	     :ensure t)
+             :ensure t)
 
 (defun init/irony-mode-hook ()
   "Hook for irony mode initialization"
@@ -221,30 +252,53 @@
     'irony-completion-at-point-async))
 
 (use-package irony
-	     :ensure t
-	     :init (progn
-		     (add-hook 'c++-mode-hook 'irony-mode)
-		     (add-hook 'c-mode-hook 'irony-mode)
-		     (add-hook 'objc-mode-hook 'irony-mode))
-	     :config (progn
-		       (add-hook 'irony-mode-hook 'init/irony-mode-hook)
-		       (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)))
+             :ensure t
+             :init (progn
+                     (add-hook 'c++-mode-hook 'irony-mode)
+                     (add-hook 'c-mode-hook 'irony-mode)
+                     (add-hook 'objc-mode-hook 'irony-mode))
+             :config (progn
+                       (add-hook 'irony-mode-hook 'init/irony-mode-hook)
+                       (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)))
 
 (use-package company-irony
-	     :ensure t)
+             :ensure t)
 
 (use-package rtags
-	     :ensure t
-	     :config
-	     (progn
-	       (setq rtags-use-helm t)
-	       (rtags-enable-standard-keybindings)))
+             :ensure t
+             :config
+             (progn
+               (setq rtags-use-helm t)
+               (rtags-enable-standard-keybindings)))
 
 (use-package cmake-ide
-	     :ensure t
-	     :config
-	     (cmake-ide-setup))
+             :ensure t
+             :config
+             (cmake-ide-setup))
 
+;;; Code:
+;; Candidates for Dev mode
+(require 'ansi-color)
+(defun colorize-compilation-buffer ()
+  "Filter that ansi-colors compilation region."
+  (toggle-read-only)
+  (ansi-color-apply-on-region compilation-filter-start (point))
+  (toggle-read-only))
+
+(add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+
+(setq compilation-scroll-output t)
+
+;; Enable subword mode for target major modes
+(add-hook 'c-mode-common-hook
+          (lambda () (subword-mode 1)))
+
+
+;; Shell Scripting
+(add-hook 'after-save-hook
+          'executable-make-buffer-file-executable-if-script-p)
+
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
