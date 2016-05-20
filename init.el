@@ -185,6 +185,11 @@
 (use-package flycheck
 	     :ensure t)
 
+(use-package helm-company
+	     :ensure t
+	     :config (progn
+		       (define-key company-mode-map (kbd "C-:") 'helm-company)
+		       (define-key company-active-map (kbd "C-:") 'helm-company)))
 (use-package company
 	     :ensure t
 	     :init (progn
