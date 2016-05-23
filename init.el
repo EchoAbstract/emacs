@@ -162,66 +162,21 @@
 
 
 ;; Toggle all the things!
-(auto-insert-mode 1)			; Prompt for templates, TODO: Better?
-(show-paren-mode 1)			; I like to see my parens
-(display-time)				; Full-screen emacs without a time?
+(auto-insert-mode 1)			  ; Prompt for templates, TODO: Better?
+(show-paren-mode 1)			    ; I like to see my parens
+(display-time)				      ; Full-screen emacs without a time?
 (column-number-mode 1)			; What's my current column?
-
+(icomplete-mode 1)          ; New mo better iswitchb
 
 ;; Global packages
-(use-package helm                       ; Powerful minibuffer input framework
-  :ensure t
-  :bind (
-         ;; Replace built-in commands with more powerful Helm variants
-         ([remap find-file] . helm-find-files)
-         ([remap switch-to-buffer] . helm-mini)
-         ([remap execute-extended-command] . helm-M-x)
-         ([remap yank-pop]        . helm-show-kill-ring)
-         ([remap insert-register] . helm-register)
-         ([remap apropos-command] . helm-apropos)
-         ([remap occur] . helm-occur)
-         ;; Additional helm commands
-         ("C-c f l" . helm-locate-library)
-         ("C-c f s" . helm-for-files)
-         ("C-c f r" . helm-recentf)
-         ("C-c h l" . helm-resume)
-         ("C-c h m" . helm-man-woman)
-         ("C-c i C" . helm-colors)
-         ("C-c j t" . helm-imenu))
-  :init
-  (helm-mode 1)
-  (with-eval-after-load 'helm-config
-    (warn "`helm-config' loaded! Get rid of it ASAP!"))
-  :config
-  (setq helm-split-window-in-side-p t
-        ;; Fuzzy matching
-        helm-buffers-fuzzy-matching t
-        helm-recentf-fuzzy-match t
-        helm-imenu-fuzzy-match t
-        ;; Use recentf to manage file name history
-        helm-ff-file-name-history-use-recentf t
-        ;; Find libraries from `require', etc.
-        helm-ff-search-library-in-sexp t
-        ;; Don't automatically jump to imenu candidate if only one match,
-        ;; because it makes the behaviour of this command unpredictable, and
-        ;; prevents me from getting an overview over the buffer if point is on a
-        ;; matching symbol.
-        helm-imenu-execute-action-at-once-if-one nil)
 
-  (when (eq system-type 'darwin)
-    ;; Replace locate with spotlight for `helm-for-files'
-    (setq helm-for-files-preferred-list
-          (append (delq 'helm-source-locate
-                        helm-for-files-preferred-list)
-                  '(helm-source-mac-spotlight))))
-  :diminish helm-mode)
 
 ;;; Programming
 (use-package flycheck
-             :ensure t)
+  :ensure t)
 
 (use-package company
-             :ensure t
+  :ensure t
              :init (progn
                      (add-hook 'c++-mode-hook 'company-mode)
                      (add-hook 'c-mode-hook 'company-mode)
@@ -231,11 +186,14 @@
                        (setq company-backends (delete 'company-semantic company-backends))
                        (add-to-list 'company-backends 'company-rtags)
                        (add-to-list 'company-backends 'company-emoji)
-                       (add-to-list 'company-backends 'company-irony)))
+                       (add-to-list 'company-backends 'company-irony))
+             :diminish (company-mode . "©"))
 
 (use-package projectile
-             :ensure t
-             :demand t)
+  :ensure t
+  :init (projectile-global-mode)
+  :diminish (projectile-mode . "℗")
+  :demand t)
 
 (use-package magit
              :ensure t)
@@ -268,7 +226,7 @@
              :ensure t
              :config
              (progn
-               (setq rtags-use-helm t)
+               ;; (setq rtags-use-helm t)
                (rtags-enable-standard-keybindings)))
 
 (use-package cmake-ide
@@ -281,9 +239,9 @@
 (require 'ansi-color)
 (defun colorize-compilation-buffer ()
   "Filter that ansi-colors compilation region."
-  (toggle-read-only)
+  (read-only-mode 0)
   (ansi-color-apply-on-region compilation-filter-start (point))
-  (toggle-read-only))
+  (read-only-mode 1))
 
 (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 
@@ -297,6 +255,111 @@
 ;; Shell Scripting
 (add-hook 'after-save-hook
           'executable-make-buffer-file-executable-if-script-p)
+
+
+;; Sort these
+(use-package go-mode :ensure t)
+(use-package js2-mode :ensure t)
+(use-package ag :ensure t)
+(use-package web-mode :ensure t)
+(use-package yaml-mode :ensure t)
+(use-package glsl-mode :ensure t)
+(use-package cmake-mode :ensure t)
+(use-package clojure-mode :ensure t)
+(use-package cider :ensure t)
+(use-package geiser :ensure t)
+(use-package markdown-mode :ensure t)
+(use-package elisp-slime-nav :ensure t)
+(use-package discover-my-major :ensure t)
+(use-package org :ensure t)
+(use-package f :ensure t)
+(use-package web :ensure t)
+(use-package kv :ensure t)
+
+;;; LaTeX with AUCTeX
+(use-package tex-site                   ; AUCTeX initialization
+  :ensure auctex)
+
+(use-package tex                        ; TeX editing/processing
+  :ensure auctex
+  :defer t
+  :config
+  (setq TeX-parse-self t                ; Parse documents to provide completion
+                                        ; for packages, etc.
+        TeX-auto-save t                 ; Automatically save style information
+        TeX-electric-sub-and-superscript t ; Automatically insert braces after
+                                        ; sub- and superscripts in math mode
+        TeX-electric-math '("\\(" "\\)")
+        ;; Don't insert magic quotes right away.
+        TeX-quote-after-quote t
+        ;; Don't ask for confirmation when cleaning
+        TeX-clean-confirm nil
+        ;; Provide forward and inverse search with SyncTeX
+        TeX-source-correlate-mode t
+        TeX-source-correlate-method 'synctex)
+  (setq-default TeX-master nil          ; Ask for the master file
+                TeX-engine 'luatex      ; Use a modern engine
+                ;; Redundant in 11.88, but keep for older AUCTeX
+                TeX-PDF-mode t)
+
+  ;; Move to chktex
+  (setcar (cdr (assoc "Check" TeX-command-list)) "chktex -v6 %s"))
+
+(use-package tex-buf                    ; TeX buffer management
+  :ensure auctex
+  :defer t
+  ;; Don't ask for confirmation when saving before processing
+  :config (setq TeX-save-query nil))
+
+(use-package tex-style                  ; TeX style
+  :ensure auctex
+  :defer t
+  :config
+  ;; Enable support for csquotes
+  (setq LaTeX-csquotes-close-quote "}"
+        LaTeX-csquotes-open-quote "\\enquote{"))
+
+(use-package tex-fold                   ; TeX folding
+  :ensure auctex
+  :defer t
+  :init (add-hook 'TeX-mode-hook #'TeX-fold-mode))
+
+(use-package tex-mode                   ; TeX mode
+  :ensure auctex
+  :defer t
+  :config
+  (font-lock-add-keywords 'latex-mode
+                          `((,(rx "\\"
+                                  symbol-start
+                                  "fx" (1+ (or (syntax word) (syntax symbol)))
+                                  symbol-end)
+                             . font-lock-warning-face))))
+
+(use-package latex                      ; LaTeX editing
+  :ensure auctex
+  :defer t
+  :config
+  ;; Teach TeX folding about KOMA script sections
+  (setq TeX-outline-extra `((,(rx (0+ space) "\\section*{") 2)
+                            (,(rx (0+ space) "\\subsection*{") 3)
+                            (,(rx (0+ space) "\\subsubsection*{") 4)
+                            (,(rx (0+ space) "\\minisec{") 5))
+        ;; No language-specific hyphens please
+        LaTeX-babel-hyphen nil)
+
+  (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode))    ; Easy math input
+
+(use-package auctex-latexmk             ; latexmk command for AUCTeX
+  :ensure t
+  :defer t
+  :after latex
+  :init (auctex-latexmk-setup))
+
+;; (use-package auctex-skim                ; Skim as viewer for AUCTeX
+;;   :load-path "lisp/"
+;;   :commands (auctex-skim-select)
+;;   :after tex
+;;   :init (auctex-skim-select))
 
 
 (custom-set-variables
