@@ -45,3 +45,7 @@ flycheck_*.el
 
 # projectiles files
 .projectile
+
+# More fun
+ido.last
+projectile-bookmarks.eld

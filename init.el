@@ -233,11 +233,11 @@
   :ensure t)
 
 (use-package rtags
+  :if (eq system-type 'darwin)          ; For now, until ubu1604
   :ensure t
-  :config
-  (progn
-    ;; (setq rtags-use-helm t)
-    (rtags-enable-standard-keybindings)))
+  :config (progn
+            ;; (setq rtags-use-helm t)
+            (rtags-enable-standard-keybindings)))
 
 (use-package cmake-ide
   :ensure t
