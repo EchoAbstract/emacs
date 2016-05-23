@@ -54,7 +54,7 @@
 ;; Next, let's load up our platform specific configs
 (defun init/exec-path-config ()
   "Here lies the config for the exec path."
-)
+  )
 
 (defun init/darwin-init ()
   "Define OS-X specific initializations, GUI-P indicates GUI is present."
@@ -67,30 +67,30 @@
 
 (when (equal (symbol-name system-type) "darwin")
   (use-package exec-path-from-shell
-               :ensure t
-               :if (and (eq system-type 'darwin) (display-graphic-p))
-               :config
-               (progn
-                 (when (string-match-p "/bash$" (getenv "SHELL"))
-                   ;; Use a non-interactive login shell.  A login shell, because my
-                   ;; environment variables are mostly set in `.zprofile'.
-                   (setq exec-path-from-shell-arguments '("-l")))
+    :ensure t
+    :if (and (eq system-type 'darwin) (display-graphic-p))
+    :config
+    (progn
+      (when (string-match-p "/bash$" (getenv "SHELL"))
+        ;; Use a non-interactive login shell.  A login shell, because my
+        ;; environment variables are mostly set in `.zprofile'.
+        (setq exec-path-from-shell-arguments '("-l")))
 
-                 (dolist (var '("EMAIL" "PYTHONPATH" "INFOPATH" "JAVA_OPTS"))
-                   (add-to-list 'exec-path-from-shell-variables var))
+      (dolist (var '("EMAIL" "PYTHONPATH" "INFOPATH" "JAVA_OPTS"))
+        (add-to-list 'exec-path-from-shell-variables var))
 
-                 (exec-path-from-shell-initialize)
+      (exec-path-from-shell-initialize)
 
-                 (setq user-mail-address (getenv "EMAIL"))
+      (setq user-mail-address (getenv "EMAIL"))
 
-                 ;; Re-initialize the `Info-directory-list' from $INFOPATH.  Since package.el
-                 ;; already initializes info, we need to explicitly add the $INFOPATH
-                 ;; directories to `Info-directory-list'.  We reverse the list of info paths
-                 ;; to prepend them in proper order subsequently
-                 (with-eval-after-load 'info
-                   (dolist (dir (nreverse (parse-colon-path (getenv "INFOPATH"))))
-                     (when dir
-                       (add-to-list 'Info-directory-list dir))))))
+      ;; Re-initialize the `Info-directory-list' from $INFOPATH.  Since package.el
+      ;; already initializes info, we need to explicitly add the $INFOPATH
+      ;; directories to `Info-directory-list'.  We reverse the list of info paths
+      ;; to prepend them in proper order subsequently
+      (with-eval-after-load 'info
+        (dolist (dir (nreverse (parse-colon-path (getenv "INFOPATH"))))
+          (when dir
+            (add-to-list 'Info-directory-list dir))))))
   (if (display-graphic-p)
       (init/darwin-init)))
 
@@ -136,7 +136,7 @@
 
 ;; TODO: Setup company emoji complete
 (use-package company-emoji
-             :ensure t)
+  :ensure t)
 
 ;; Toolbar/menubar
 (if (fboundp 'tool-bar-mode)
@@ -187,17 +187,17 @@
 
 (use-package company
   :ensure t
-             :init (progn
-                     (add-hook 'c++-mode-hook 'company-mode)
-                     (add-hook 'c-mode-hook 'company-mode)
-                     (add-hook 'obj-c-mode-hook 'company-mode)
-                     (global-company-mode))
-             :config (progn
-                       (setq company-backends (delete 'company-semantic company-backends))
-                       (add-to-list 'company-backends 'company-rtags)
-                       (add-to-list 'company-backends 'company-emoji)
-                       (add-to-list 'company-backends 'company-irony))
-             :diminish (company-mode . "©"))
+  :init (progn
+          (add-hook 'c++-mode-hook 'company-mode)
+          (add-hook 'c-mode-hook 'company-mode)
+          (add-hook 'obj-c-mode-hook 'company-mode)
+          (global-company-mode))
+  :config (progn
+            (setq company-backends (delete 'company-semantic company-backends))
+            (add-to-list 'company-backends 'company-rtags)
+            (add-to-list 'company-backends 'company-emoji)
+            (add-to-list 'company-backends 'company-irony))
+  :diminish (company-mode . "©"))
 
 (use-package projectile
   :ensure t
@@ -206,11 +206,11 @@
   :demand t)
 
 (use-package magit
-             :ensure t)
+  :ensure t)
 
 ;;; C++
 (use-package auto-complete-clang
-             :ensure t)
+  :ensure t)
 
 (defun init/irony-mode-hook ()
   "Hook for irony mode initialization"
@@ -220,29 +220,29 @@
     'irony-completion-at-point-async))
 
 (use-package irony
-             :ensure t
-             :init (progn
-                     (add-hook 'c++-mode-hook 'irony-mode)
-                     (add-hook 'c-mode-hook 'irony-mode)
-                     (add-hook 'objc-mode-hook 'irony-mode))
-             :config (progn
-                       (add-hook 'irony-mode-hook 'init/irony-mode-hook)
-                       (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)))
+  :ensure t
+  :init (progn
+          (add-hook 'c++-mode-hook 'irony-mode)
+          (add-hook 'c-mode-hook 'irony-mode)
+          (add-hook 'objc-mode-hook 'irony-mode))
+  :config (progn
+            (add-hook 'irony-mode-hook 'init/irony-mode-hook)
+            (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)))
 
 (use-package company-irony
-             :ensure t)
+  :ensure t)
 
 (use-package rtags
-             :ensure t
-             :config
-             (progn
-               ;; (setq rtags-use-helm t)
-               (rtags-enable-standard-keybindings)))
+  :ensure t
+  :config
+  (progn
+    ;; (setq rtags-use-helm t)
+    (rtags-enable-standard-keybindings)))
 
 (use-package cmake-ide
-             :ensure t
-             :config
-             (cmake-ide-setup))
+  :ensure t
+  :config
+  (cmake-ide-setup))
 
 ;;; Code:
 ;; Candidates for Dev mode
