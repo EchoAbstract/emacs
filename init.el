@@ -62,8 +62,7 @@
   (setq mac-option-modifier 'none)            ; Unset Option so we get fancy inputs
   (global-unset-key (kbd "C-z"))              ; Unset C-z so we don't get annoying hides :-)
   (global-set-key (kbd "M-0") 'suspend-frame) ; and rebind it to be sort-of mac like
-  (setq default-input-method "MacOSX")
-  (add-hook 'after-init-hook (lambda () (setq visible-bell nil)))) ; Visible Bell breaks on El Capitan, fix it here
+  (setq default-input-method "MacOSX"))
 
 
 (when (equal (symbol-name system-type) "darwin")
@@ -137,10 +136,10 @@
 
 ;; Toolbar/menubar
 (if (fboundp 'tool-bar-mode)
-    (tool-bar-mode -1))			; Disable the toolbar
+    (tool-bar-mode -1))     ; Disable the toolbar
 
 (if (fboundp 'menu-bar-mode)
-    (menu-bar-mode nil))		; Disable the menubar (Doesn't impact os-x)
+    (menu-bar-mode nil))    ; Disable the menubar (Doesn't impact os-x)
 
 (use-package form-feed
   :ensure t
@@ -151,21 +150,21 @@
 
 ;;; Overall Stuff
 
-(fset 'yes-or-no-p 'y-or-n-p)		; Make y/n prompts easier
+(fset 'yes-or-no-p 'y-or-n-p)   ; Make y/n prompts easier
 
 ;; General Vars
-(setq-default fill-column 78)		; Wider fill by default
+(setq-default fill-column 78)           ; Wider fill by default
 (setq-default indent-tabs-mode nil)     ; Prevent tabs by default
 (setq-default tab-width 2)              ; If we are using tabs, make them small
-(setq suggest-key-bindings t)		; Let emacs teach me
-(setq visible-bell t)			; No beeps!
+(setq suggest-key-bindings t)           ; Let emacs teach me
+(setq visible-bell t)                   ; No beeps!
 
 
 ;; Toggle all the things!
-(auto-insert-mode 1)			  ; Prompt for templates, TODO: Better?
-(show-paren-mode 1)			    ; I like to see my parens
-(display-time)				      ; Full-screen emacs without a time?
-(column-number-mode 1)			; What's my current column?
+(auto-insert-mode 1)        ; Prompt for templates, TODO: Better?
+(show-paren-mode 1)         ; I like to see my parens
+(display-time)              ; Full-screen emacs without a time?
+(column-number-mode 1)      ; What's my current column?
 (icomplete-mode 1)          ; New mo better iswitchb
 
 ;; Global packages
