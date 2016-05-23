@@ -100,9 +100,13 @@
 (defun init/setup-gui ()
   "Set up GUI."
   ;; Fonts
-  (set-face-font 'default        "M+ 1m light-13")
-  (set-face-font 'variable-pitch "Noto Sans-13")
-  (set-face-font 'fixed-pitch    "M+ 1m light-13")
+  (let ((fsize (if (equal (symbol-name system-type) "darwin")
+                   "13"
+                 "11")))
+    (set-face-font 'default        (concat "M+ 1m light-" fsize))
+    (set-face-font 'variable-pitch (concat "Noto Sans-" fsize))
+    (set-face-font 'fixed-pitch    (concat "M+ 1m light-" fsize)))
+
   ;; specify fonts for all emoji characters
   (when (member "Noto Color Emoji" (font-family-list))
     (set-fontset-font t 'unicode "Noto Color Emoji" nil 'prepend))
@@ -165,9 +169,16 @@
 (show-paren-mode 1)         ; I like to see my parens
 (display-time)              ; Full-screen emacs without a time?
 (column-number-mode 1)      ; What's my current column?
-(icomplete-mode 1)          ; New mo better iswitchb
 
 ;; Global packages
+(use-package ido
+  :ensure t
+  :init (progn
+          (setq ido-enable-flex-matching t)
+          (setq ido-everywhere t)
+          (setq ido-create-new-buffer 'always)
+          (setq ido-ignore-extensions t)
+          (ido-mode 1)))
 
 
 ;;; Programming
