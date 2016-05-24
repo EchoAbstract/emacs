@@ -49,3 +49,4 @@ flycheck_*.el
 # More fun
 ido.last
 projectile-bookmarks.eld
+oblong
