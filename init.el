@@ -164,6 +164,12 @@
 (setq visible-bell t)                   ; No beeps!
 
 
+;; Make emacs window moving feel like my tmux setup
+(global-set-key (kbd "C-z h") 'windmove-left)
+(global-set-key (kbd "C-z j") 'windmove-down)
+(global-set-key (kbd "C-z k") 'windmove-up)
+(global-set-key (kbd "C-z l") 'windmove-right)
+
 ;; Toggle all the things!
 (auto-insert-mode 1)        ; Prompt for templates, TODO: Better?
 (show-paren-mode 1)         ; I like to see my parens
@@ -205,8 +211,25 @@
   :diminish (projectile-mode . "℗")
   :demand t)
 
+(require 'magit)
+
+
 (use-package magit
-  :ensure t)
+  :ensure t
+  :config (progn
+            (defadvice magit-status (around magit-fullscreen activate)
+              "Make magit-status run alone in a frame."
+              (window-configuration-to-register :magit-fullscreen)
+              ad-do-it
+              (delete-other-windows))
+
+            (defun magit-quit-session ()
+              "Restore the previous window configuration and kill the magit buffer."
+              (interactive)
+              (kill-buffer)
+              (jump-to-register :magit-fullscreen))
+
+            (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)))
 
 ;;; C++
 (use-package auto-complete-clang
