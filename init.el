@@ -60,7 +60,6 @@
   "Define OS-X specific initializations, GUI-P indicates GUI is present."
   (setq mac-command-modifier 'meta)           ; Set META-Key to be CMD
   (setq mac-option-modifier 'none)            ; Unset Option so we get fancy inputs
-  (global-unset-key (kbd "C-z"))              ; Unset C-z so we don't get annoying hides :-)
   (global-set-key (kbd "M-0") 'suspend-frame) ; and rebind it to be sort-of mac like
   (setq default-input-method "MacOSX"))
 
@@ -165,6 +164,7 @@
 
 
 ;; Make emacs window moving feel like my tmux setup
+(global-unset-key (kbd "C-z"))              ; Unset C-z so we don't get annoying hides :-)
 (global-set-key (kbd "C-z h") 'windmove-left)
 (global-set-key (kbd "C-z j") 'windmove-down)
 (global-set-key (kbd "C-z k") 'windmove-up)
