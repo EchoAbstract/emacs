@@ -122,7 +122,8 @@
 
 (defun init/setup-terminal ()
   "Set up the terminal the way we like it."
-  (menu-bar-mode -1))
+  (menu-bar-mode -1)
+  (load-theme 'misterioso t))
 
 (add-hook 'after-init-hook (lambda ()
                              (if window-system
