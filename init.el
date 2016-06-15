@@ -169,6 +169,7 @@
 (global-set-key (kbd "C-z j") 'windmove-down)
 (global-set-key (kbd "C-z k") 'windmove-up)
 (global-set-key (kbd "C-z l") 'windmove-right)
+(global-set-key (kbd "C-z o") 'other-window)
 
 ;; Toggle all the things!
 (auto-insert-mode 1)        ; Prompt for templates, TODO: Better?
