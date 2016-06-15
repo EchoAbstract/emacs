@@ -310,6 +310,10 @@
 (use-package f :ensure t)
 (use-package web :ensure t)
 (use-package kv :ensure t)
+(use-package nix-mode :ensure t)
+(use-package nix-sandbox :ensure t)
+(use-package nixos-options :ensure t)
+(use-package swift-mode :ensure t)
 
 ;;; LaTeX with AUCTeX
 (use-package tex-site                   ; AUCTeX initialization
@@ -448,7 +452,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (rtags exec-path-from-shell use-package))))
+ '(package-selected-packages (quote (swift-mode rtags exec-path-from-shell use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
