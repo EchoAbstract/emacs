@@ -100,11 +100,14 @@
   "Set up GUI."
   ;; Fonts
   (let ((fsize (if (equal (symbol-name system-type) "darwin")
-                   "13"
+                   "11";"13"
                  "11")))
-    (set-face-font 'default        (concat "M+ 1m light-" fsize))
+    ;; (set-face-font 'default        (concat "M+ 1m light-" fsize))
+    ;; (set-face-font 'variable-pitch (concat "Noto Sans-" fsize))
+    ;; (set-face-font 'fixed-pitch    (concat "M+ 1m light-" fsize)))
+    (set-face-font 'default        (concat "SF Mono-" fsize))
     (set-face-font 'variable-pitch (concat "Noto Sans-" fsize))
-    (set-face-font 'fixed-pitch    (concat "M+ 1m light-" fsize)))
+    (set-face-font 'fixed-pitch    (concat "SF Mono-" fsize)))
 
   ;; specify fonts for all emoji characters
   (when (member "Noto Color Emoji" (font-family-list))
@@ -117,7 +120,7 @@
   (setq frame-title-format " %b -- %m -- Emacs")
 
   ;; I like this theme
-  (load-theme 'misterioso t))
+  (load-theme 'dichromacy t))
 
 
 (defun init/setup-terminal ()
@@ -213,7 +216,6 @@
   :diminish (projectile-mode . "℗")
   :demand t)
 
-(require 'magit)
 
 
 (use-package magit
@@ -232,6 +234,9 @@
               (jump-to-register :magit-fullscreen))
 
             (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)))
+
+
+(require 'magit)
 
 ;;; C++
 (use-package auto-complete-clang
@@ -452,7 +457,9 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages (quote (swift-mode rtags exec-path-from-shell use-package))))
+ '(package-selected-packages
+   (quote
+    (nasm-mode swift-mode rtags exec-path-from-shell use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
