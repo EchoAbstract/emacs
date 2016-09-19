@@ -172,6 +172,9 @@
 (global-set-key (kbd "C-z l") 'windmove-right)
 (global-set-key (kbd "C-z o") 'other-window)
 
+;; Imenu
+(global-set-key (kbd "<mouse-3>") 'imenu)
+
 ;; Toggle all the things!
 (auto-insert-mode 1)        ; Prompt for templates, TODO: Better?
 (show-paren-mode 1)         ; I like to see my parens
@@ -230,10 +233,14 @@
               (kill-buffer)
               (jump-to-register :magit-fullscreen))
 
-            (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)))
+            (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
+  :demand t)
 
 
-(require 'magit)
+(use-package expand-region
+  :ensure t
+  :config (progn
+            (global-set-key (kbd "C-=") 'er/expand-region)))
 
 ;;; C++
 (use-package auto-complete-clang
@@ -456,7 +463,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (nasm-mode fvwm-mode swift-mode rtags exec-path-from-shell use-package))))
+    (expand-region nasm-mode fvwm-mode swift-mode rtags exec-path-from-shell use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
