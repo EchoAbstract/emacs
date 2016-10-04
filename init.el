@@ -170,7 +170,19 @@
 (global-set-key (kbd "C-z j") 'windmove-down)
 (global-set-key (kbd "C-z k") 'windmove-up)
 (global-set-key (kbd "C-z l") 'windmove-right)
+(global-set-key (kbd "C-z <left>") 'windmove-left)
+(global-set-key (kbd "C-z <down>") 'windmove-down)
+(global-set-key (kbd "C-z <up>") 'windmove-up)
+(global-set-key (kbd "C-z <right>") 'windmove-right)
+(global-set-key (kbd "C-z b") 'windmove-left)
+(global-set-key (kbd "C-z n") 'windmove-down)
+(global-set-key (kbd "C-z p") 'windmove-up)
+(global-set-key (kbd "C-z f") 'windmove-right)
 (global-set-key (kbd "C-z o") 'other-window)
+(global-set-key (kbd "C-z `") 'other-window)
+
+;; Frame commands
+(global-set-key (kbd "M-`") 'other-frame)
 
 ;; Imenu
 (global-set-key (kbd "<mouse-3>") 'imenu)
@@ -322,6 +334,7 @@
 (use-package nix-mode :ensure t)
 (use-package nix-sandbox :ensure t)
 (use-package nixos-options :ensure t)
+(use-package neotree :ensure t)
 (use-package swift-mode :ensure t)
 
 ;;; LaTeX with AUCTeX
