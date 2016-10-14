@@ -187,6 +187,9 @@
 ;; Imenu
 (global-set-key (kbd "<mouse-3>") 'imenu)
 
+;; ff-other-file
+(global-set-key (kbd "<f9>") 'ff-find-other-file)
+
 ;; Toggle all the things!
 (auto-insert-mode 1)        ; Prompt for templates, TODO: Better?
 (show-paren-mode 1)         ; I like to see my parens
