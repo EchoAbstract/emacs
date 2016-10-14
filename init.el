@@ -163,6 +163,15 @@
 (setq suggest-key-bindings t)           ; Let emacs teach me
 (setq visible-bell t)                   ; No beeps!
 
+;; Get rid of the ~ files
+(setq
+   backup-by-copying t      ; don't clobber symlinks
+   backup-directory-alist
+    '(("." . "/tmp/emacs"))    ; don't litter my fs tree
+   delete-old-versions t
+   kept-new-versions 6
+   kept-old-versions 2
+   version-control t)       ; use versioned backups
 
 ;; Make emacs window moving feel like my tmux setup
 (global-unset-key (kbd "C-z"))              ; Unset C-z so we don't get annoying hides :-)
@@ -195,6 +204,8 @@
 (show-paren-mode 1)         ; I like to see my parens
 (display-time)              ; Full-screen emacs without a time?
 (column-number-mode 1)      ; What's my current column?
+
+
 
 ;; Global packages
 (use-package ido
