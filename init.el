@@ -350,6 +350,7 @@
 (use-package nixos-options :ensure t)
 (use-package neotree :ensure t)
 (use-package swift-mode :ensure t)
+(use-package pandoc-mode :ensure t)
 
 ;;; LaTeX with AUCTeX
 (use-package tex-site                   ; AUCTeX initialization
@@ -490,7 +491,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (expand-region nasm-mode fvwm-mode swift-mode rtags exec-path-from-shell use-package))))
+    (pandoc-mode expand-region nasm-mode fvwm-mode swift-mode rtags exec-path-from-shell use-package))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
