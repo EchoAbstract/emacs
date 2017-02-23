@@ -232,8 +232,7 @@
   :config (progn
             (setq company-backends (delete 'company-semantic company-backends))
             (add-to-list 'company-backends 'company-rtags)
-            (add-to-list 'company-backends 'company-emoji)
-            (add-to-list 'company-backends 'company-irony))
+            (add-to-list 'company-backends 'company-emoji))
   :diminish (company-mode . "©"))
 
 (use-package projectile
@@ -269,40 +268,37 @@
             (global-set-key (kbd "C-=") 'er/expand-region)))
 
 ;;; C++
-(use-package auto-complete-clang
-  :ensure t)
-
-(defun init/irony-mode-hook ()
-  "Hook for irony mode initialization"
-  (define-key irony-mode-map [remap completion-at-point]
-    'irony-completion-at-point-async)
-  (define-key irony-mode-map [remap complete-symbol]
-    'irony-completion-at-point-async))
-
-(use-package irony
-  :ensure t
-  :init (progn
-          (add-hook 'c++-mode-hook 'irony-mode)
-          (add-hook 'c-mode-hook 'irony-mode)
-          (add-hook 'objc-mode-hook 'irony-mode))
-  :config (progn
-            (add-hook 'irony-mode-hook 'init/irony-mode-hook)
-            (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)))
-
-(use-package company-irony
-  :ensure t)
-
 (use-package rtags
-  :if (eq system-type 'darwin)          ; For now, until ubu1604
   :ensure t
   :config (progn
+            (define-key c-mode-base-map (kbd "M-.")
+              (function rtags-find-symbol-at-point))
+            (define-key c-mode-base-map (kbd "M-,")
+              (function rtags-find-references-at-point))
+            ;; install standard rtags keybindings. Do M-. on the symbol below to
+            ;; jump to definition and see the keybindings.
+            ;; company completion setup
+            (setq rtags-autostart-diagnostics t)
+            (rtags-diagnostics)
+            (setq rtags-completions-enabled t)
+            ;; (push 'company-rtags company-backends)
+            ;; (global-company-mode)
+            (define-key c-mode-base-map (kbd "<C-tab>") (function company-complete))
             ;; (setq rtags-use-helm t)
             (rtags-enable-standard-keybindings)))
 
-(use-package cmake-ide
-  :ensure t
-  :config
-  (cmake-ide-setup))
+
+(defun setup-rtags-flycheck ()
+  "Make sure that flycheck doesn't override RTags"
+  (interactive)
+  (flycheck-mode)
+  (flycheck-select-checker 'rtags)
+  (setq-local flycheck-highlighting-mode nil)
+  (setq-local flycheck-check-syntax-automatically nil))
+
+(use-package flycheck-rtags
+  :config (progn
+            (add-hook 'c-mode-common-hook #'setup-rtags-flycheck)))
 
 ;;; Code:
 ;; Candidates for Dev mode
