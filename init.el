@@ -87,9 +87,9 @@
       ;; directories to `Info-directory-list'.  We reverse the list of info paths
       ;; to prepend them in proper order subsequently
       (with-eval-after-load 'info
-        (dolist (dir (nreverse (parse-colon-path (getenv "INFOPATH"))))
-          (when dir
-            (add-to-list 'Info-directory-list dir))))))
+          (dolist (dir (nreverse (parse-colon-path (getenv "INFOPATH"))))
+            (when dir
+              (add-to-list 'Info-directory-list dir))))))
   (if (display-graphic-p)
       (init/darwin-init)))
 
@@ -205,6 +205,11 @@
 (show-paren-mode 1)         ; I like to see my parens
 (display-time)              ; Full-screen emacs without a time?
 (column-number-mode 1)      ; What's my current column?
+
+;; Make sure that we actually get the default emacs info paths
+(add-hook 'Info-mode-hook		; After Info-mode has started
+          (lambda ()
+            (setq Info-additional-directory-list Info-default-directory-list)))
 
 
 
