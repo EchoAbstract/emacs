@@ -162,6 +162,7 @@
 (setq-default tab-width 2)              ; If we are using tabs, make them small
 (setq suggest-key-bindings t)           ; Let emacs teach me
 (setq visible-bell t)                   ; No beeps!
+(setq inhibit-startup-screen t)         ; I'll miss it, but it no longer works for me
 
 ;; Get rid of the ~ files
 (setq
@@ -481,17 +482,3 @@
 (init/maybe-load-oblong)
 
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (tuareg pandoc-mode expand-region nasm-mode fvwm-mode swift-mode rtags exec-path-from-shell use-package))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
