@@ -117,7 +117,7 @@
   (setq frame-title-format " %b -- %m -- Emacs")
 
   ;; I like this theme
-  (load-theme 'dichromacy t))
+  (load-theme 'dracula t))
 
 
 (defun init/setup-terminal ()
@@ -354,8 +354,10 @@
 (use-package swift-mode :ensure t)
 (use-package pandoc-mode :ensure t)
 (use-package tuareg :ensure t)
+(use-package dracula-theme :ensure t)
 
 ;;; LaTeX with AUCTeX
+
 (use-package tex-site                   ; AUCTeX initialization
   :ensure auctex)
 
