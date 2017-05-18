@@ -51,7 +51,17 @@
   (require 'use-package))
 
 
+;; Here lies useful functions for the rest of this file
+
+(defun init/maybe-load-file (file)
+  "Load FILE only if it exists."
+  (if (file-exists-p file)
+      (load-file file)
+    (warn (concat "Can't load non-existent file: " file))))
+
+
 ;; Next, let's load up our platform specific configs
+
 (defun init/exec-path-config ()
   "Here lies the config for the exec path."
   )
@@ -114,10 +124,7 @@
     (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend))
 
   ;; Set the frame title for Quantified Self Capture
-  (setq frame-title-format " %b -- %m -- Emacs")
-
-  ;; I like this theme
-  (load-theme 'dracula t))
+  (setq frame-title-format " %b -- %m -- Emacs"))
 
 
 (defun init/setup-terminal ()
@@ -275,7 +282,7 @@
 
 ;;; C++
 (use-package rtags
-  :ensure t
+  :load-path "~/src/rtags/src/"
   :config (progn
             (define-key c-mode-base-map (kbd "M-.")
               (function rtags-find-symbol-at-point))
@@ -343,7 +350,6 @@
 (use-package markdown-mode :ensure t)
 (use-package elisp-slime-nav :ensure t)
 (use-package discover-my-major :ensure t)
-(use-package org :ensure t)
 (use-package f :ensure t)
 (use-package web :ensure t)
 (use-package kv :ensure t)
@@ -354,7 +360,34 @@
 (use-package swift-mode :ensure t)
 (use-package pandoc-mode :ensure t)
 (use-package tuareg :ensure t)
-(use-package dracula-theme :ensure t)
+(use-package dracula-theme
+	     :ensure t
+	     :config
+	     (if window-system
+           (load-theme 'dracula t)))
+
+(use-package org
+  :ensure t
+  :config
+  (progn
+    (setq org-capture-templates
+          '(;; other entries
+            ("j" "Journal entry" plain
+             (file+datetree+prompt "~/personal/journal.org")
+             "%K - %<%H:%M:%S>\n%a\n%i\n%?\n")
+            ;; other entries
+            ))
+    (global-set-key (kbd "C-c c") 'org-capture)))
+
+
+(use-package smart-mode-line
+  :ensure t
+  :init
+  (setq sml/no-confirm-load-theme t)
+  (setq sml/mode-width 'full)
+  ;; this makes sure that the mode line doesn't go off the screen
+  (setq sml/name-width 40)
+  (sml/setup))
 
 ;;; LaTeX with AUCTeX
 
@@ -448,7 +481,7 @@
   (let ((g-speak-env (getenv "G_SPEAK_HOME")))
     (if g-speak-env
         g-speak-env
-      "/opt/oblong/g-speak3.24"))
+      "/opt/oblong/g-speak3.28"))
   "Location of g-speak root.")
 
 (defvar g-speak-deps
@@ -482,10 +515,29 @@
       (message "Oblong config required, loading...")
       (init/set-oblong-persona)
       (add-to-list 'load-path oblong-dir)
-      (load-file (concat oblong-dir "/init.el"))
+      (init/maybe-load-file (concat oblong-dir "/init.el"))
       (init/install-oblong-hooks)
+      (init/maybe-load-file (concat oblong-dir "/spruce.el"))
       (message "Oblong load complete."))))
 
 (init/maybe-load-oblong)
 
 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   (quote
+    ("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default)))
+ '(package-selected-packages
+   (quote
+    (paradox smart-mode-line dracula-theme yaml-mode web-mode web wanderlust use-package tuareg swift-mode rtags projectile pandoc-mode notmuch nixos-options nix-sandbox nix-mode neotree nasm-mode markdown-mode magit kv julia-mode js2-mode go-mode glsl-mode gitlab geiser form-feed flycheck f expand-region exec-path-from-shell elisp-slime-nav discover-my-major company-irony company-emoji cmake-mode cmake-ide cider auto-complete-clang auctex-latexmk ag)))
+ '(paradox-github-token t))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
