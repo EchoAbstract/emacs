@@ -363,12 +363,23 @@
 (use-package swift-mode :ensure t)
 (use-package pandoc-mode :ensure t)
 (use-package tuareg :ensure t)
-(use-package eros :ensure t)
 (use-package dracula-theme
 	     :ensure t
 	     :config
 	     (if window-system
            (load-theme 'dracula t)))
+
+(use-package eros
+  :ensure t
+  :config (eros-mode t))
+
+(use-package beacon
+  :ensure t
+  :config
+  (progn
+    ;; (beacon-mode 1)
+    (setq beacon-push-mark 35)
+    (setq beacon-color "#666600")))
 
 (use-package org
   :ensure t
