@@ -363,6 +363,7 @@
 (use-package swift-mode :ensure t)
 (use-package pandoc-mode :ensure t)
 (use-package tuareg :ensure t)
+(use-package eros :ensure t)
 (use-package dracula-theme
 	     :ensure t
 	     :config
