@@ -369,6 +369,9 @@
 	     (if window-system
            (load-theme 'dracula t)))
 
+(use-package tide
+  :ensure t)
+
 (use-package eros
   :ensure t
   :config (eros-mode t))
