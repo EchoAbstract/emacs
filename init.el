@@ -122,10 +122,10 @@
 
   ;; Linux fonts
   (when (equal (symbol-name system-type) "gnu/linux")
-    (let ((fsize 12))
-      (init/safe-set-face-font 'default "M+ 1m" fsize)
+    (let ((fsize 13))
+      (init/safe-set-face-font 'default "M+ 2m" fsize)
       (init/safe-set-face-font 'variable-pitch "Noto Sans" fsize)
-      (init/safe-set-face-font 'fixed-pitch "M+ 1m" fsize)))
+      (init/safe-set-face-font 'fixed-pitch "M+ 2m" fsize)))
 
   ;; specify fonts for all emoji characters
   (when (member "Noto Color Emoji" (font-family-list))
