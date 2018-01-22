@@ -106,15 +106,26 @@
 
 ;;; Look and feel
 
+(defun init/safe-set-face-font (face font-family font-size)
+  "If font family is found use it for face (with given size)."
+  (when (member font-family (font-family-list))
+    (set-face-font face (concat font-family "-" (number-to-string font-size)))))
+
 (defun init/setup-gui ()
   "Set up GUI."
-  ;; Fonts
-  (let ((fsize (if (equal (symbol-name system-type) "darwin")
-                   "11";"13"
-                 "11")))
-    (set-face-font 'default        (concat "SF Mono-" fsize))
-    (set-face-font 'variable-pitch (concat "Noto Sans-" fsize))
-    (set-face-font 'fixed-pitch    (concat "SF Mono-" fsize)))
+  ;; Mac fonts
+  (when (equal (symbol-name system-type) "darwin")
+    (let ((fsize 12))
+      (init/safe-set-face-font 'default "SF Mono" fsize)
+      (init/safe-set-face-font 'variable-pitch "Noto Sans" fsize)
+      (init/safe-set-face-font 'fixed-pitch "SF Mono" fsize)))
+
+  ;; Linux fonts
+  (when (equal (symbol-name system-type) "gnu/linux")
+    (let ((fsize 12))
+      (init/safe-set-face-font 'default "M+ 1m" fsize)
+      (init/safe-set-face-font 'variable-pitch "Noto Sans" fsize)
+      (init/safe-set-face-font 'fixed-pitch "M+ 1m" fsize)))
 
   ;; specify fonts for all emoji characters
   (when (member "Noto Color Emoji" (font-family-list))
@@ -364,6 +375,9 @@
 (use-package swift-mode :ensure t)
 (use-package pandoc-mode :ensure t)
 (use-package tuareg :ensure t)
+(use-package meson-mode :ensure t)
+(use-package clang-format :ensure t)
+
 (use-package dracula-theme
 	     :ensure t
 	     :config
