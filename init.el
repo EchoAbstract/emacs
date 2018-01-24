@@ -386,6 +386,10 @@
 (use-package tuareg :ensure t)
 (use-package meson-mode :ensure t)
 (use-package clang-format :ensure t)
+(use-package slime-docker :ensure t)
+(use-package docker :ensure t)
+(use-package dockerfile-mode :ensure t)
+;; TODO: Kubernetes?
 
 (use-package dracula-theme
 	     :ensure t
