@@ -359,6 +359,16 @@
 
 ;; Sort these
 (use-package go-mode :ensure t)
+(use-package flymake-go :ensure t)
+(use-package go-complete :ensure t
+  :config (progn
+            (go-complete-at-point tags-completion-at-point-function)))
+(use-package go-eldoc :ensure t)
+(use-package go-guru :ensure t)
+(use-package go-impl :ensure t)
+(use-package go-imports :ensure t)
+(use-package go-projectile :ensure t)
+
 (use-package js2-mode :ensure t
   :config (progn
             (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
