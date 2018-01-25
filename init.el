@@ -362,7 +362,7 @@
 (use-package flymake-go :ensure t)
 (use-package go-complete :ensure t
   :config (progn
-            (go-complete-at-point tags-completion-at-point-function)))
+            (add-hook 'completion-at-point-functions 'go-complete-at-point)))
 (use-package go-eldoc :ensure t)
 (use-package go-guru :ensure t)
 (use-package go-impl :ensure t)
