@@ -161,6 +161,9 @@
 ;; I ♥ UNICODE (in hex at least)
 (setq read-quoted-char-radix 16)
 
+;; Make sure that we can diminish modes
+(use-package diminish :ensure t)
+
 ;; TODO: Setup company emoji complete
 (use-package company-emoji
   :ensure t)
