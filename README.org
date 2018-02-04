@@ -1,0 +1,80 @@
+#+TITLE: Brian Wilson's emacs config
+#+AUTHOR: Brian Wilson <polytopes@gmail.com>
+
+This is Brian's emacs config, it's geared towards my specific use cases, in
+particular:
+
+
+- I'm a C++ programmer in my day job for [[https://www.oblong.com/][Oblong Industries]]
+  - I also use Python, JS, TypeScript, and HTML regularly
+- I heavily use both linux and mac, but I cut my teeth on *BSD distributions
+- Outside of work I use C++, C, Ada, Go, Julia, Python, and JS/HTML
+- Despite my initial resistence to it, I'm a git convert and use it for
+  everything
+- While I'd like to use org-mode more, compatibility forces me to focus more
+  on markdown
+- I really like scheme and lisp, but can't really justify major focus on them,
+  hwoever slime, geiser, and lisp machines have really influenced how I develop
+- I used to use emacs for everything, including mail and newsreading, but
+  gmail is somewhat difficult to use with emacs so I don't do that much
+  anymore :-(
+- Finally, I keep work specific code in a separate repo and load it on-demand
+  based on if that repo is present
+
+If any of this sounds useful, read on!
+
+
+* Platform Support
+
+* Major Modes
+
+** C/C++
+
+*** Code Completion (RTags)
+
+I use [[https://github.com/Andersbakken/rtags][RTags]] for most code completion paired with company-mode for code
+completion.  I've had a difficult time with Homebrew on mac breaking my RTags
+setup many times so currently I do the following steps:
+
+1. Download an [[https://llvm.org/][LLVM]] release to ~${HOME}/LLVM/clang+llvm-<version>-<platform>~
+2. Clone RTags to ~${HOME}/src~ and build pointing to the downloaded LLVM (in
+   the below example I'm using LLVM 5.0.1 on macOS)
+   1. ~LLVMDIR=${HOME}/LLVM~
+   2. ~mkdir -p ${LLVMDIR}~
+   3. ~cd ${LLVMDIR}~
+   4. ~tar tf ${HOME}/Downloads/clang+llvm-5.0.1-x86_64-apple-darwin.tar.xz~
+   5. ~mkdir ${HOME}/src~
+   6. ~cd ${HOME}/src~
+   7. ~git clone --recursive https://github.com/Andersbakken/rtags.git~
+   8. ~mkdir build && cd build~
+   9. ~LIBCLANG_LLVM_CONFIG_EXECUTABLE=${LLVMDIR}/clang+llvm-5.0.1-final-x86_64-apple-darwin/bin/llvm-config cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -DCMAKE_INSTALL_PREFIX=${HOME}/.local -GNinja ..~
+   10. ~ninja -j4 install~
+3. Configure RDM to run automatically
+   - [[file:~/src/rtags/README.org::*Integration%20with%20%3Dlaunchd%3D%20/(Mac%20OS%20X)/][macOS Instructions]]
+   - [[file:~/src/rtags/README.org::*Integration%20with%20%3Dsystemd%3D%20/(GNU%20Linux)/][linux instructions]]
+
+*** Other notes
+
+I like bright output in compilation, so I colorize the compilation output, and
+I jump to the end (which is great if there's a small number of errors, but
+terrible if there is a large number of errors.
+
+I also force ~subword-mode~, as I code with case.
+
+
+* Finally
+
+** TODOs
+
+- Org HTML Export :: Not working with this config, but works with no config...
+- Windows support :: I'm doing more on windows due to limiations on mac, so I
+     need to add some support for this
+- macOS :: Add support for the touch bar :-D
+
+** Included 3rd party code
+
+- ~themes/fairyfloss.el~ :: converted from Fairyfloss by @sailorhg, [[https://github.com/sailorhg/fairyfloss][github]], [[http://sailorhg.github.io/fairyfloss/][website]].
+
+** License
+
+Unless otherwise noted all code is under the GPL v3 (see [[file:LICENSE.txt][LICENSE.txt]])
