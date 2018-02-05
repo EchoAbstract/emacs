@@ -402,6 +402,7 @@
 (use-package slime-docker :ensure t)
 (use-package docker :ensure t)
 (use-package dockerfile-mode :ensure t)
+(use-package systemd :ensure t)
 ;; TODO: Kubernetes?
 
 (use-package dracula-theme
