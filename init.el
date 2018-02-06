@@ -115,8 +115,8 @@
   "Set up GUI."
 
   ;; TODO: Add code to cycle through fonts I like
-  (let* ((defualt-fixed-font-name "Go Mono")
-         (defualt-variable-font-name "Noto Sans")
+  (let* ((defualt-fixed-font-name "Monoisome")
+         (defualt-variable-font-name "Symbola")
          (mac-fixed-font-name defualt-fixed-font-name)
          (linux-fixed-font-name defualt-fixed-font-name)
          (mac-variable-font-name defualt-variable-font-name)
