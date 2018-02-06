@@ -403,13 +403,20 @@
 (use-package docker :ensure t)
 (use-package dockerfile-mode :ensure t)
 (use-package systemd :ensure t)
+(use-package info-colors :ensure t)
 ;; TODO: Kubernetes?
 
-(use-package dracula-theme
-	     :ensure t
-	     :config
-	     (if window-system
-           (load-theme 'dracula t)))
+(use-package monotropic-theme
+  :ensure t
+  :config
+  (if window-system
+      (load-theme 'monotropic t)))
+
+;; (use-package dracula-theme
+;; 	     :ensure t
+;; 	     :config
+;; 	     (if window-system
+;;            (load-theme 'dracula t)))
 
 (use-package tide
   :ensure t)
