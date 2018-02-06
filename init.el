@@ -1,6 +1,6 @@
 ;;; init.el --- Emacs configuration of Brian Wilson -*- lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2016 Brian Wilson <brian@polytopes.me>
+;; Copyright (c) 2018 Brian Wilson <brian@polytopes.me>
 ;;
 ;; Author: Brian Wilson <brian@polytopes.me>
 ;; URL: https://gihub.com/EchoAbstract/emacs
@@ -126,7 +126,7 @@
     (when (equal (symbol-name system-type) "darwin")
       (let ((fsize 12))
         (init/safe-set-face-font 'default mac-fixed-font-name fsize)
-        (init/safe-set-face-font 'variable-pitch  mac-variable-font-name fsize)
+        (init/safe-set-face-font 'variable-pitch  mac-variable-font-name (+ fsize 4))
         (init/safe-set-face-font 'fixed-pitch mac-fixed-font-name fsize)))
 
     ;; Linux fonts
@@ -135,6 +135,11 @@
         (init/safe-set-face-font 'default linux-fixed-font-name fsize)
         (init/safe-set-face-font 'variable-pitch linux-variable-font-name fsize)
         (init/safe-set-face-font 'fixed-pitch  linux-fixed-font-name fsize))))
+
+  ;; There is a bug with the next two bits of code on Fedora 27
+  ;; (and likely ubuntu 18.04) where XFT bails trying to load
+  ;; a font with color information.  Possible solutions are to build
+  ;; emacs without XFT support, or *maybe* to build with Cairo support.
 
   ;; specify fonts for all emoji characters
   (when (member "Noto Color Emoji" (font-family-list))
@@ -150,12 +155,26 @@
 (defun init/setup-terminal ()
   "Set up the terminal the way we like it."
   (menu-bar-mode -1)
-  (load-theme 'misterioso t))
+  (load-theme 'misterioso t))           ; TODO maybe time to switch this up
 
 (add-hook 'after-init-hook (lambda ()
                              (if window-system
                                  (init/setup-gui)
                                (init/setup-terminal))))
+
+;; GUI Themes
+(use-package monotropic-theme
+  :ensure t
+  :config
+  (if window-system
+      (load-theme 'monotropic t)))
+
+;; (use-package dracula-theme
+;; 	     :ensure t
+;; 	     :config
+;; 	     (if window-system
+;;            (load-theme 'dracula t)))
+
 
 
 ;; I ♥ UNICODE (in hex at least)
@@ -164,7 +183,8 @@
 ;; Make sure that we can diminish modes
 (use-package diminish :ensure t)
 
-;; TODO: Setup company emoji complete
+;; On platforms with working emoji this enables
+;; slack-style :emoji: substitutions
 (use-package company-emoji
   :ensure t)
 
@@ -175,6 +195,7 @@
 (if (fboundp 'menu-bar-mode)
     (menu-bar-mode nil))    ; Disable the menubar (Doesn't impact os-x)
 
+;; This replaces `^L' characters with lines
 (use-package form-feed
   :ensure t
   :init (progn
@@ -236,13 +257,6 @@
 (display-time)              ; Full-screen emacs without a time?
 (column-number-mode 1)      ; What's my current column?
 
-;; Make sure that we actually get the default emacs info paths
-(add-hook 'Info-mode-hook		; After Info-mode has started
-          (lambda ()
-            (setq Info-additional-directory-list Info-default-directory-list)))
-
-
-
 ;; Global packages
 (use-package ido
   :ensure t
@@ -255,7 +269,43 @@
           (ido-mode 1)))
 
 
+; Better mode line
+(use-package smart-mode-line
+  :ensure t
+  :init
+  (setq sml/no-confirm-load-theme t)
+  (setq sml/mode-width 'full)
+  ;; this makes sure that the mode line doesn't go off the screen
+  (setq sml/name-width 40)
+  (sml/setup))
+
+;; Info mode additions
+(use-package info-colors
+  :ensure t
+  :config
+  (progn
+    (add-hook 'Info-mode-hook		; After Info-mode has started
+              (lambda ()
+                (setq Info-additional-directory-list Info-default-directory-list)))
+    (add-hook 'Info-selection-hook 'info-colors-fontify-node)))
+
+(use-package ag :ensure t)
+(use-package discover-my-major :ensure t)
+(use-package neotree :ensure t)
+
+
 ;;; Programming
+
+;; elisp
+(use-package f :ensure t)               ; Modern File API
+(use-package kv :ensure t)              ; Modern Key-Value API
+
+(use-package elisp-slime-nav :ensure t)
+(use-package eros
+  :ensure t
+  :config (eros-mode t))
+
+;; Global Programming
 (use-package flycheck
   :ensure t)
 
@@ -277,8 +327,6 @@
   :init (projectile-global-mode)
   :diminish (projectile-mode . "℗")
   :demand t)
-
-
 
 (use-package magit
   :ensure t
@@ -303,6 +351,13 @@
   :ensure t
   :config (progn
             (global-set-key (kbd "C-=") 'er/expand-region)))
+
+;;; Build systems
+(use-package cmake-mode :ensure t)
+(use-package meson-mode :ensure t)
+
+;;; Data interchange formats
+(use-package yaml-mode :ensure t)
 
 ;;; C++
 (use-package rtags
@@ -337,8 +392,7 @@
   :config (progn
             (add-hook 'c-mode-common-hook #'setup-rtags-flycheck)))
 
-;;; Code:
-;; Candidates for Dev mode
+;; Prettier Compilation
 (require 'ansi-color)
 (defun colorize-compilation-buffer ()
   "Filter that ansi-colors compilation region."
@@ -354,13 +408,14 @@
 (add-hook 'c-mode-common-hook
           (lambda () (subword-mode 1)))
 
+(use-package glsl-mode :ensure t)
+(use-package clang-format :ensure t)
 
 ;; Shell Scripting
 (add-hook 'after-save-hook
           'executable-make-buffer-file-executable-if-script-p)
 
-
-;; Sort these
+;;; Go
 (use-package go-mode :ensure t)
 (use-package flymake-go :ensure t)
 (use-package go-complete :ensure t
@@ -372,66 +427,39 @@
 (use-package go-imports :ensure t)
 (use-package go-projectile :ensure t)
 
+;;; Web Programming
 (use-package js2-mode :ensure t
   :config (progn
             (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
             (add-to-list 'interpreter-mode-alist '("node" . js2-mode))))
-(use-package ag :ensure t)
-(use-package web-mode :ensure t)
-(use-package yaml-mode :ensure t)
-(use-package glsl-mode :ensure t)
-(use-package cmake-mode :ensure t)
-(use-package clojure-mode :ensure t)
+(use-package tide :ensure t)            ; TypeScript
+(use-package web :ensure t)             ; Make web requests
+(use-package web-mode :ensure t)        ; Mixing HTML and Scripts
+
+
+;;; Lisp programming
 (use-package cider :ensure t)
+(use-package clojure-mode :ensure t)
 (use-package geiser :ensure t)
-(use-package markdown-mode :ensure t)
-(use-package elisp-slime-nav :ensure t)
-(use-package discover-my-major :ensure t)
-(use-package f :ensure t)
-(use-package web :ensure t)
-(use-package kv :ensure t)
-(use-package nix-mode :ensure t)
-(use-package nix-sandbox :ensure t)
-(use-package nixos-options :ensure t)
-(use-package neotree :ensure t)
-(use-package swift-mode :ensure t)
-(use-package pandoc-mode :ensure t)
-(use-package tuareg :ensure t)
-(use-package meson-mode :ensure t)
-(use-package clang-format :ensure t)
 (use-package slime-docker :ensure t)
+
+;;; Apple's Swift Language
+(use-package swift-mode :ensure t)
+
+
+;;; OCaml Support
+(use-package tuareg :ensure t)
+
+
+;;; Ops / Admin
 (use-package docker :ensure t)
 (use-package dockerfile-mode :ensure t)
 (use-package systemd :ensure t)
-(use-package info-colors :ensure t)
 ;; TODO: Kubernetes?
 
-(use-package monotropic-theme
-  :ensure t
-  :config
-  (if window-system
-      (load-theme 'monotropic t)))
 
-;; (use-package dracula-theme
-;; 	     :ensure t
-;; 	     :config
-;; 	     (if window-system
-;;            (load-theme 'dracula t)))
-
-(use-package tide
-  :ensure t)
-
-(use-package eros
-  :ensure t
-  :config (eros-mode t))
-
-(use-package beacon
-  :ensure t
-  :config
-  (progn
-    ;; (beacon-mode 1)
-    (setq beacon-push-mark 35)
-    (setq beacon-color "#666600")))
+
+;;; Document generation
 
 (use-package org
   :ensure t
@@ -446,15 +474,9 @@
             ))
     (global-set-key (kbd "C-c c") 'org-capture)))
 
+(use-package pandoc-mode :ensure t)
+(use-package markdown-mode :ensure t)
 
-(use-package smart-mode-line
-  :ensure t
-  :init
-  (setq sml/no-confirm-load-theme t)
-  (setq sml/mode-width 'full)
-  ;; this makes sure that the mode line doesn't go off the screen
-  (setq sml/name-width 40)
-  (sml/setup))
 
 ;;; LaTeX with AUCTeX
 
@@ -548,14 +570,14 @@
   (let ((g-speak-env (getenv "G_SPEAK_HOME")))
     (if g-speak-env
         g-speak-env
-      "/opt/oblong/g-speak3.28"))
+      "/opt/oblong/g-speak4.4"))
   "Location of g-speak root.")
 
 (defvar g-speak-deps
   (let ((g-speak-deps-env (getenv "G_SPEAK_DEPS"))) ; TODO(brian): This can't be right...
     (if g-speak-deps-env
         g-speak-deps-env
-      "/opt/oblong/deps-64-11"))
+      "/opt/oblong/deps-64-12"))
   "Location of g-speak deps.")
 
 (defun init/install-oblong-hooks ()
