@@ -115,7 +115,7 @@
   "Set up GUI."
 
   ;; TODO: Add code to cycle through fonts I like
-  (let* ((defualt-fixed-font-name "Monoisome")
+  (let* ((defualt-fixed-font-name "LispM")
          (defualt-variable-font-name "Symbola")
          (mac-fixed-font-name defualt-fixed-font-name)
          (linux-fixed-font-name defualt-fixed-font-name)
@@ -163,17 +163,17 @@
                                (init/setup-terminal))))
 
 ;; GUI Themes
-(use-package monotropic-theme
-  :ensure t
-  :config
-  (if window-system
-      (load-theme 'monotropic t)))
+;; (use-package monotropic-theme
+;;   :ensure t
+;;   :config
+;;   (if window-system
+;;       (load-theme 'monotropic t)))
 
-;; (use-package dracula-theme
-;; 	     :ensure t
-;; 	     :config
-;; 	     (if window-system
-;;            (load-theme 'dracula t)))
+(use-package dracula-theme
+	     :ensure t
+	     :config
+	     (if window-system
+           (load-theme 'dracula t)))
 
 
 
@@ -258,26 +258,45 @@
 (column-number-mode 1)      ; What's my current column?
 
 ;; Global packages
-(use-package ido
+(use-package paredit :ensure t)
+
+(use-package ivy
   :ensure t
-  :init (progn
-          (setq ido-enable-flex-matching t)
-          (setq ido-everywhere t)
-          (setq ido-create-new-buffer 'always)
-          (setq ido-ignore-extensions t)
-	  (setq ido-auto-merge-work-directories-length -1)
-          (ido-mode 1)))
+  :config (progn
+            (ivy-mode 1)
+            (setq ivy-use-virtual-buffers t)
+            (setq ivy-count-format "(%d/%d) ")
+            (global-set-key (kbd "C-s") 'swiper)
+            (global-set-key (kbd "M-x") 'counsel-M-x)
+            (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+            (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+            (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+            (global-set-key (kbd "<f1> l") 'counsel-find-library)
+            (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+            (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+            (global-set-key (kbd "C-c g") 'counsel-git)
+            (global-set-key (kbd "C-c j") 'counsel-git-grep)
+            (global-set-key (kbd "C-c k") 'counsel-ag)
+            (global-set-key (kbd "C-x l") 'counsel-locate)
+            (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)))
+
+(use-package swiper :ensure t)
+(use-package counsel :ensure t)
+(use-package counsel-projectile
+  :ensure t
+  :config (progn
+            (counsel-projectile-mode)))
 
 
-; Better mode line
-(use-package smart-mode-line
-  :ensure t
-  :init
-  (setq sml/no-confirm-load-theme t)
-  (setq sml/mode-width 'full)
-  ;; this makes sure that the mode line doesn't go off the screen
-  (setq sml/name-width 40)
-  (sml/setup))
+                                        ; Better mode line
+ (use-package smart-mode-line
+   :ensure t
+   :init
+   (setq sml/no-confirm-load-theme t)
+   (setq sml/mode-width 'full)
+   ;; this makes sure that the mode line doesn't go off the screen
+   (setq sml/name-width 40)
+   (sml/setup))
 
 ;; Info mode additions
 (use-package info-colors
