@@ -258,40 +258,31 @@
 (column-number-mode 1)      ; What's my current column?
 
 ;; Global packages
-;; (use-package ido
-;;   :ensure t
-;;   :init (progn
-;;           (setq ido-enable-flex-matching t)
-;;           (setq ido-everywhere t)
-;;           (setq ido-create-new-buffer 'always)
-;;           (setq ido-ignore-extensions t)
-;; 	  (setq ido-auto-merge-work-directories-length -1)
-;;           (ido-mode 1)))
-
 ; Swiper, counsel, ivy, counsel-projectile
 (use-package ivy
   :ensure t
   :init (progn
           (ivy-mode 1)
           (setq ivy-use-virtual-buffers t)
-          (global-set-key (kbd "C-s") 'swiper)
+          (setq magit-completing-read-function 'ivy-completing-read))
+  :diminish (ivy-mode . "ⓘ"))
+
+
+(use-package swiper
+  :ensure t
+  :init (progn
+          (global-set-key (kbd "C-s") 'swiper)))
+
+(use-package counsel
+  :ensure t
+  :init (progn
           (global-set-key (kbd "M-x") 'counsel-M-x)
           (global-set-key (kbd "C-x C-f") 'counsel-find-file)
           (global-set-key (kbd "<f1> f") 'counsel-describe-function)
           (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
           (global-set-key (kbd "<f1> l") 'counsel-find-library)
           (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-          (global-set-key (kbd "<f2> u") 'counsel-unicode-char))
-  :diminish (ivy-mode . "ⓘ"))
-
-
-(use-package swiper
-  :ensure t
-  :init (progn))
-
-(use-package counsel
-  :ensure t
-  :init (progn))
+          (global-set-key (kbd "<f2> u") 'counsel-unicode-char)))
 
 (use-package counsel-projectile
   :ensure t
