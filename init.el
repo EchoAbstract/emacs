@@ -59,6 +59,10 @@
       (load-file file)
     (warn (concat "Can't load non-existent file: " file))))
 
+(defun init/maybe-load-config (config-file)
+  "Load CONFIG-FILE only if it exists."
+  (init/maybe-load-file (concat user-emacs-directory config-file)))
+
 
 ;; Next, let's load up our platform specific configs
 
@@ -163,17 +167,20 @@
                                (init/setup-terminal))))
 
 ;; GUI Themes
-(use-package monotropic-theme
-  :ensure t
-  :config
-  (if window-system
-      (load-theme 'monotropic t)))
 
-;; (use-package dracula-theme
-;; 	     :ensure t
-;; 	     :config
-;; 	     (if window-system
-;;            (load-theme 'dracula t)))
+;; I really like this theme, but it has some usability bugs
+;; so I should fork and fix
+;; (use-package monotropic-theme
+;;   :ensure t
+;;   :config
+;;   (if window-system
+;;       (load-theme 'monotropic t)))
+
+(use-package dracula-theme
+	     :ensure t
+	     :config
+	     (if window-system
+           (load-theme 'dracula t)))
 
 
 
@@ -216,15 +223,15 @@
 (setq inhibit-startup-screen t)         ; I'll miss it, but it no longer works for me
 
 ;; Get rid of the ~ files
-(setq
-   backup-by-copying t      ; don't clobber symlinks
-   backup-directory-alist
-    '(("." . "/tmp/emacs"))    ; don't litter my fs tree
-   delete-old-versions t
-   kept-new-versions 6
-   kept-old-versions 2
-   version-control t)       ; use versioned backups
+(setq backup-by-copying t)      ; don't clobber symlinks
+(setq backup-directory-alist
+      '(("." . "/tmp/emacs")))  ; don't litter my fs tree
+(setq delete-old-versions t)    ; limit how much space we take up
+(setq kept-new-versions 6)      ; keep more from this session
+(setq kept-old-versions 2)      ; keep less from last session
+(setq version-control t)        ; use versioned backups
 
+;; Keybindings
 ;; Make emacs window moving feel like my tmux setup
 (global-unset-key (kbd "C-z"))              ; Unset C-z so we don't get annoying hides :-)
 (global-set-key (kbd "C-z h") 'windmove-left)
