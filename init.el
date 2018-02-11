@@ -202,6 +202,9 @@
 (if (fboundp 'menu-bar-mode)
     (menu-bar-mode nil))    ; Disable the menubar (Doesn't impact os-x)
 
+(if (fboundp 'scroll-bar-mode)
+    (scroll-bar-mode -1))   ; Disable the scrollbars
+
 ;; This replaces `^L' characters with lines
 (use-package form-feed
   :ensure t
@@ -233,7 +236,7 @@
 
 ;; Keybindings
 ;; Make emacs window moving feel like my tmux setup
-(global-unset-key (kbd "C-z"))              ; Unset C-z so we don't get annoying hides :-)
+(global-unset-key (kbd "C-z")) ; Unset C-z so we don't get annoying hides :-)
 (global-set-key (kbd "C-z h") 'windmove-left)
 (global-set-key (kbd "C-z j") 'windmove-down)
 (global-set-key (kbd "C-z k") 'windmove-up)
@@ -255,8 +258,14 @@
 ;; Imenu
 (global-set-key (kbd "<mouse-3>") 'imenu)
 
-;; ff-other-file
-(global-set-key (kbd "<f9>") 'ff-find-other-file)
+;; Finding corresponding files
+(defun baw-ff-find-other-file (&optional in-other-window)
+  "Wrapper around FF-FIND-OTHER-FILE that ignores includes."
+  (interactive)
+  (ff-find-other-file in-other-window t))
+
+(global-set-key (kbd "<f9>") 'baw-ff-find-other-file)
+(global-set-key (kbd "M-<f9>") (lambda () (interactive) (baw-ff-find-other-file t)))
 
 ;; Toggle all the things!
 (auto-insert-mode 1)        ; Prompt for templates, TODO: Better?
@@ -430,11 +439,20 @@
 
 (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 
-(setq compilation-scroll-output t)
+(setq init/cpp-other-file-alist
+  '(("\\.cpp\\'" (".h" ".hpp" ".hh"))
+    ("\\.hpp\\'" (".cpp" ".cc"))
+    ("\\.cc\\'" (".h" ".hh"))
+    ("\\.hh\\'" (".cc" ".cpp"))
+    ("\\.c\\'" (".h"))
+    ("\\.h\\'" (".cpp" ".cc" ".c"))))
 
-;; Enable subword mode for target major modes
 (add-hook 'c-mode-common-hook
-          (lambda () (subword-mode 1)))
+          (lambda ()
+            (subword-mode 1)           ; Enable subword mode
+            (setq ff-ignore-include t) ; I don't want this to jump to includes
+            (setq ff-other-file-alist init/cpp-other-file-alist)
+            (setq compilation-scroll-output t)))
 
 (use-package glsl-mode :ensure t)
 (use-package clang-format :ensure t)
@@ -462,7 +480,18 @@
             (add-to-list 'interpreter-mode-alist '("node" . js2-mode))))
 (use-package tide :ensure t)            ; TypeScript
 (use-package web :ensure t)             ; Make web requests
-(use-package web-mode :ensure t)        ; Mixing HTML and Scripts
+(use-package web-mode                   ; Mixing HTML and Scripts
+  :ensure t
+  :config
+  (progn
+    (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))))
 
 
 ;;; Lisp programming
@@ -470,6 +499,7 @@
 (use-package clojure-mode :ensure t)
 (use-package geiser :ensure t)
 (use-package slime-docker :ensure t)
+(use-package paredit :ensure t)
 
 ;;; Apple's Swift Language
 (use-package swift-mode :ensure t)
