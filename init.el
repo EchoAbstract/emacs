@@ -329,6 +329,27 @@
 (use-package discover-my-major :ensure t)
 (use-package neotree :ensure t)
 
+;; Let's try yasnippet again
+(use-package yasnippet
+  :ensure t
+  :config (progn
+            (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
+            ;; From https://stackoverflow.com/questions/28487400/how-to-unset-yasnippets-tab-key
+            ;; This illustrates how to redefine yas-expand to S-TAB.
+            (define-key yas-minor-mode-map [backtab]     'yas-expand)
+
+            ;; Strangely, just redefining one of the variations below won't work.
+            ;; All rebinds seem to be needed.
+            (define-key yas-minor-mode-map [(tab)]        nil)
+            (define-key yas-minor-mode-map (kbd "TAB")    nil)
+            (define-key yas-minor-mode-map (kbd "<tab>")  nil)
+
+            (yas-global-mode 1)))
+
+(use-package yasnippet-snippets
+  :ensure t
+  :config (yas-reload-all))
+
 
 ;;; Programming
 
