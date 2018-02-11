@@ -30,6 +30,9 @@
 ;;; Code:
 
 
+(setq init/original-gc-cons-threshold gc-cons-threshold)
+(setq gc-cons-threshold 100000000) ; Temporarily bump up the gc threshold
+
 ;; First things first, never load the older of byte-code vs. elisp
 (setq load-prefer-newer t)
 
@@ -41,6 +44,7 @@
 (require 'package)
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/") t)
 (package-initialize)
 
 (unless (package-installed-p 'use-package)
@@ -212,6 +216,12 @@
           (add-hook 'emacs-lisp-mode-hook 'form-feed-mode))
   :diminish form-feed-mode)
 
+;; This is a profiling tool for this startup script.
+;; It's pretty useful
+(use-package esup
+  :ensure t
+  :defer 30)
+
 
 ;;; Overall Stuff
 
@@ -344,11 +354,13 @@
             (define-key yas-minor-mode-map (kbd "TAB")    nil)
             (define-key yas-minor-mode-map (kbd "<tab>")  nil)
 
-            (yas-global-mode 1)))
+            (yas-global-mode 1))
+  :defer 5)
 
 (use-package yasnippet-snippets
   :ensure t
-  :config (yas-reload-all))
+  :config (yas-reload-all)
+  :after yasnippet)
 
 
 ;;; Programming
@@ -401,7 +413,8 @@
               (jump-to-register :magit-fullscreen))
 
             (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
-  :demand t)
+  :demand t
+  :defer 4)
 
 
 (use-package expand-region
@@ -418,7 +431,8 @@
 
 ;;; C++
 (use-package rtags
-  :load-path "~/src/rtags/src/"
+  :load-path "~/src/rtags/build/src/"
+  :defer 8
   :config (progn
             (define-key c-mode-base-map (kbd "M-.")
               (function rtags-find-symbol-at-point))
@@ -448,7 +462,8 @@
 
 (use-package flycheck-rtags
   :config (progn
-            (add-hook 'c-mode-common-hook #'setup-rtags-flycheck)))
+            (add-hook 'c-mode-common-hook #'setup-rtags-flycheck))
+  :after rtags)
 
 ;; Prettier Compilation
 (require 'ansi-color)
@@ -516,7 +531,6 @@
 
 
 ;;; Lisp programming
-(use-package cider :ensure t)
 (use-package clojure-mode :ensure t)
 (use-package geiser :ensure t)
 (use-package slime-docker :ensure t)
@@ -540,8 +554,17 @@
 
 ;;; Document generation
 
-(use-package org
+(use-package ox-hugo
   :ensure t
+  :after ox)
+
+(use-package ox-pandoc
+  :ensure t
+  :after ox)
+
+(use-package org
+  :ensure org-plus-contrib
+  ;; :ensure t
   :config
   (progn
     (setq org-capture-templates
@@ -555,6 +578,7 @@
 
 (use-package pandoc-mode :ensure t)
 (use-package markdown-mode :ensure t)
+(use-package easy-hugo :ensure t)
 
 
 ;;; LaTeX with AUCTeX
@@ -696,3 +720,7 @@
 (let ((custom-file-location (concat user-emacs-directory "custom.el")))
   (setq custom-file custom-file-location)
   (load custom-file-location t))
+
+
+;; Reset the cons threshhold
+(setq gc-cons-threshold init/original-gc-cons-threshold)
