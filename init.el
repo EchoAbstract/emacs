@@ -54,13 +54,28 @@
 (eval-when-compile
   (require 'use-package))
 
+
+(defvar init/profile-emacs-init-time t
+  "Setup various things for profiling startup time")
+
+;; I've managed to get this down below 1 second for startup time
+;; So... no need to profile
+;; Total User Startup Time: 0.920sec     Total Number of GC Pauses: 1     Total GC Time: 0.059sec
+(setq init/profile-emacs-init-time nil)
+
+(when init/profile-emacs-init-time
+  (setq use-package-compute-statistics t))
+
 
 ;; Here lies useful functions for the rest of this file
 
 (defun init/maybe-load-file (file)
   "Load FILE only if it exists."
-  (if (file-exists-p file)
-      (load-file file)
+  (if (or
+       (file-exists-p file)
+       (file-exists-p (concat file ".el"))
+       (file-exists-p (concat file ".elc")))
+      (load file)
     (warn (concat "Can't load non-existent file: " file))))
 
 (defun init/maybe-load-config (config-file)
@@ -197,6 +212,7 @@
 ;; On platforms with working emoji this enables
 ;; slack-style :emoji: substitutions
 (use-package company-emoji
+  :defer t
   :ensure t)
 
 ;; Toolbar/menubar
@@ -211,6 +227,7 @@
 
 ;; This replaces `^L' characters with lines
 (use-package form-feed
+  :defer t
   :ensure t
   :init (progn
           (add-hook 'emacs-lisp-mode-hook 'form-feed-mode))
@@ -219,8 +236,10 @@
 ;; This is a profiling tool for this startup script.
 ;; It's pretty useful
 (use-package esup
-  :ensure t
-  :defer 30)
+  :when init/profile-emacs-init-time
+  :defer t
+  :ensure t)
+
 
 
 ;;; Overall Stuff
@@ -327,6 +346,7 @@
 
 ;; Info mode additions
 (use-package info-colors
+  :defer t
   :ensure t
   :config
   (progn
@@ -335,9 +355,15 @@
                 (setq Info-additional-directory-list Info-default-directory-list)))
     (add-hook 'Info-selection-hook 'info-colors-fontify-node)))
 
-(use-package ag :ensure t)
-(use-package discover-my-major :ensure t)
-(use-package neotree :ensure t)
+(use-package ag
+  :defer t
+  :ensure t)
+(use-package discover-my-major
+  :defer t
+  :ensure t)
+(use-package neotree
+  :defer t
+  :ensure t)
 
 ;; Let's try yasnippet again
 (use-package yasnippet
@@ -355,7 +381,7 @@
             (define-key yas-minor-mode-map (kbd "<tab>")  nil)
 
             (yas-global-mode 1))
-  :defer 5)
+  :defer 10)
 
 (use-package yasnippet-snippets
   :ensure t
@@ -366,19 +392,25 @@
 ;;; Programming
 
 ;; elisp
-(use-package f :ensure t)               ; Modern File API
-(use-package kv :ensure t)              ; Modern Key-Value API
+(use-package f :defer t :ensure t)               ; Modern File API
+(use-package kv :defer t :ensure t)              ; Modern Key-Value API
 
-(use-package elisp-slime-nav :ensure t)
+(use-package elisp-slime-nav
+  :defer t
+  :ensure t)
+
 (use-package eros
+  :defer t
   :ensure t
   :config (eros-mode t))
 
 ;; Global Programming
 (use-package flycheck
+  :defer t
   :ensure t)
 
 (use-package company
+  :defer t
   :ensure t
   :init (progn
           (add-hook 'c++-mode-hook 'company-mode)
@@ -413,26 +445,33 @@
               (jump-to-register :magit-fullscreen))
 
             (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
-  :demand t
-  :defer 4)
+  :defer 10)
 
 
 (use-package expand-region
+  :defer t
   :ensure t
   :config (progn
             (global-set-key (kbd "C-=") 'er/expand-region)))
 
 ;;; Build systems
-(use-package cmake-mode :ensure t)
-(use-package meson-mode :ensure t)
+(use-package cmake-mode
+  :defer t
+  :ensure t)
+
+(use-package meson-mode
+  :defer t
+  :ensure t)
 
 ;;; Data interchange formats
-(use-package yaml-mode :ensure t)
+(use-package yaml-mode
+  :defer t
+  :ensure t)
 
 ;;; C++
 (use-package rtags
   :load-path "~/src/rtags/build/src/"
-  :defer 8
+  :defer 10
   :config (progn
             (define-key c-mode-base-map (kbd "M-.")
               (function rtags-find-symbol-at-point))
@@ -490,33 +529,36 @@
             (setq ff-other-file-alist init/cpp-other-file-alist)
             (setq compilation-scroll-output t)))
 
-(use-package glsl-mode :ensure t)
-(use-package clang-format :ensure t)
+(use-package glsl-mode :defer t :ensure t)
+(use-package clang-format :defer t :ensure t)
 
 ;; Shell Scripting
 (add-hook 'after-save-hook
           'executable-make-buffer-file-executable-if-script-p)
 
 ;;; Go
-(use-package go-mode :ensure t)
-(use-package flymake-go :ensure t)
-(use-package go-complete :ensure t
+(use-package go-mode :defer t :ensure t)
+(use-package flymake-go :defer t :ensure t)
+(use-package go-complete :defer t :ensure t
   :config (progn
             (add-hook 'completion-at-point-functions 'go-complete-at-point)))
-(use-package go-eldoc :ensure t)
-(use-package go-guru :ensure t)
-(use-package go-impl :ensure t)
-(use-package go-imports :ensure t)
-(use-package go-projectile :ensure t)
+(use-package go-eldoc :defer t :ensure t)
+(use-package go-guru :defer t :ensure t)
+(use-package go-impl :defer t :ensure t)
+(use-package go-imports :defer t :ensure t)
+(use-package go-projectile :defer t :ensure t)
 
 ;;; Web Programming
-(use-package js2-mode :ensure t
+(use-package js2-mode
+  :defer t
+  :ensure t
   :config (progn
             (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
             (add-to-list 'interpreter-mode-alist '("node" . js2-mode))))
-(use-package tide :ensure t)            ; TypeScript
-(use-package web :ensure t)             ; Make web requests
-(use-package web-mode                   ; Mixing HTML and Scripts
+(use-package tide :ensure t :defer t)            ; TypeScript
+(use-package web :ensure t :defer t)             ; Make web requests
+(use-package web-mode                            ; Mixing HTML and Scripts
+  :defer t
   :ensure t
   :config
   (progn
@@ -531,38 +573,25 @@
 
 
 ;;; Lisp programming
-(use-package clojure-mode :ensure t)
-(use-package geiser :ensure t)
-(use-package slime-docker :ensure t)
-(use-package paredit :ensure t)
-
-;;; Apple's Swift Language
-(use-package swift-mode :ensure t)
-
-
-;;; OCaml Support
-(use-package tuareg :ensure t)
-
+(use-package geiser :defer t :ensure t)
+(use-package paredit :defer t :ensure t)
 
 ;;; Ops / Admin
-(use-package docker :ensure t)
-(use-package dockerfile-mode :ensure t)
-(use-package systemd :ensure t)
-;; TODO: Kubernetes?
+(use-package docker :defer t :ensure t)
+(use-package dockerfile-mode :defer t :ensure t)
+(use-package systemd :defer t :ensure t)
+(use-package launchctl :defer t :ensure t)
 
 
 
 ;;; Document generation
-
-(use-package ox-hugo
-  :ensure t
-  :after ox)
 
 (use-package ox-pandoc
   :ensure t
   :after ox)
 
 (use-package org
+  :defer 5
   :ensure org-plus-contrib
   ;; :ensure t
   :config
@@ -576,14 +605,14 @@
             ))
     (global-set-key (kbd "C-c c") 'org-capture)))
 
-(use-package pandoc-mode :ensure t)
-(use-package markdown-mode :ensure t)
-(use-package easy-hugo :ensure t)
+(use-package pandoc-mode :defer t :ensure t)
+(use-package markdown-mode :defer t :ensure t)
 
 
 ;;; LaTeX with AUCTeX
 
 (use-package tex-site                   ; AUCTeX initialization
+  :defer t
   :ensure auctex)
 
 (use-package tex                        ; TeX editing/processing
@@ -668,51 +697,10 @@
 ;;   :init (auctex-skim-select))
 
 
-;; Oblong
-(defvar g-speak-home
-  (let ((g-speak-env (getenv "G_SPEAK_HOME")))
-    (if g-speak-env
-        g-speak-env
-      "/opt/oblong/g-speak4.4"))
-  "Location of g-speak root.")
+;; External config files
 
-(defvar g-speak-deps
-  (let ((g-speak-deps-env (getenv "G_SPEAK_DEPS"))) ; TODO(brian): This can't be right...
-    (if g-speak-deps-env
-        g-speak-deps-env
-      "/opt/oblong/deps-64-12"))
-  "Location of g-speak deps.")
-
-(defun init/install-oblong-hooks ()
-  "Install any oblong specific hooks."
-  (let ((hook (lambda ()
-                (add-to-list 'flycheck-clang-include-path (concat g-speak-home "/include"))
-                (add-to-list 'flycheck-clang-include-path (concat g-speak-deps "/include")))))
-    (add-hook 'c++-mode-hook hook)
-    (add-hook 'c-mode-hook hook)))
-
-(defun init/set-oblong-persona ()
-  "This is my Oblong persona."
-  (progn
-    (setq user-mail-address "bwilson@oblong.com")
-    (setq calendar-latitude 42.34998)
-    (setq calendar-longitude -71.04949)
-    (setq calendar-location-name "Boston, MA")))
-
-(defun init/maybe-load-oblong ()
-  "Load oblong configs if on an oblong system."
-  (let ((oblong-dir (concat user-emacs-directory "oblong")))
-    (message (concat "Checking for oblong customizations @ " oblong-dir))
-    (when (file-exists-p oblong-dir)
-      (message "Oblong config required, loading...")
-      (init/set-oblong-persona)
-      (add-to-list 'load-path oblong-dir)
-      (init/maybe-load-file (concat oblong-dir "/init.el"))
-      (init/install-oblong-hooks)
-      (init/maybe-load-file (concat oblong-dir "/spruce.el"))
-      (message "Oblong load complete."))))
-
-(init/maybe-load-oblong)
+(init/maybe-load-config "goodies")      ; Experimental / not ready stuff
+(init/maybe-load-config "work")         ; Work stuff
 
 
 
