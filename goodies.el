@@ -61,6 +61,47 @@
   :defer t
   :ensure t)
 
+
+;;; Window splitting functions...
+
+;; TODO (brian): Currently this fails with magit commits, since that's
+;; technically an emacs client and doesn't go through the normal splitting
+;; chain.  I feel like I could fix that by adding some magit-specific advice...
+;; ¯\_(ツ)_/¯
+
+(defvar *baw-modes-allowed-to-split*
+  '("magit" "COMMIT_EDITMSG")
+  "Regexps that match major modes allowed to split my windows")
+
+(defun baw-major-mode-contains-p (partial-string)
+  "Does the current major-mode contain PARTIAL-STRING?"
+  (not
+   (null
+    (string-match-p (regexp-quote partial-string) (symbol-name major-mode)))))
+
+(defun baw-should-split-sensibly-p ()
+  "Determine if the current major mode is allowed to split"
+  (not
+   (null
+    (seq-filter 'baw-major-mode-contains-p *baw-modes-allowed-to-split*))))
+
+(defun baw-split-window (&optional window)
+  "Maybe split the window sensibly"
+  (cond ((baw-should-split-sensibly-p)
+         (split-window-sensibly window))
+        (t
+         nil)))
+
+
+(setq split-window-preferred-function 'baw-split-window)
+
+
+
+;;; Emoji hacks
+(defun shrug ()
+  "Insert the shrug guy (¯\_(ツ)_/¯) at point"
+  (interactive)
+  (insert "¯\\_(ツ)_/¯"))
 
 
 (provide 'goodies)
