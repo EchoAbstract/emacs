@@ -172,13 +172,16 @@
     (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend))
 
   ;; Set the frame title for Quantified Self Capture
-  (setq frame-title-format " %b -- %m -- Emacs"))
+  (setq frame-title-format " %b -- %m -- Emacs")
+
+  (split-window-horizontally)
+  (toggle-frame-maximized))
 
 
 (defun init/setup-terminal ()
   "Set up the terminal the way we like it."
-  (menu-bar-mode -1)
-  (load-theme 'cyberpunk t))           ; TODO maybe time to switch this up
+  (menu-bar-mode -1))
+;;  (load-theme 'cyberpunk t))           ; TODO maybe time to switch this up
 
 (add-hook 'after-init-hook (lambda ()
                              (if window-system
@@ -202,6 +205,11 @@
            (load-theme 'dracula t)))
 
 
+(use-package cyberpunk-theme
+	     :ensure t
+	     :config
+	     (if (not window-system)
+           (load-theme 'cyberpunk t)))
 
 ;; I ♥ UNICODE (in hex at least)
 (setq read-quoted-char-radix 16)
