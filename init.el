@@ -175,13 +175,15 @@
   (setq frame-title-format " %b -- %m -- Emacs")
 
   (split-window-horizontally)
-  (toggle-frame-maximized))
+  (toggle-frame-maximized)
+
+  (load-theme 'dracula t))
 
 
 (defun init/setup-terminal ()
   "Set up the terminal the way we like it."
-  (menu-bar-mode -1))
-;;  (load-theme 'cyberpunk t))           ; TODO maybe time to switch this up
+  (menu-bar-mode -1)
+  (load-theme 'cyberpunk t))
 
 (add-hook 'after-init-hook (lambda ()
                              (if window-system
@@ -198,18 +200,9 @@
 ;;   (if window-system
 ;;       (load-theme 'monotropic t)))
 
-(use-package dracula-theme
-	     :ensure t
-	     :config
-	     (if window-system
-           (load-theme 'dracula t)))
-
-
-(use-package cyberpunk-theme
-	     :ensure t
-	     :config
-	     (if (not window-system)
-           (load-theme 'cyberpunk t)))
+(use-package monotropic-theme :ensure t)
+(use-package dracula-theme :ensure t)
+(use-package cyberpunk-theme :ensure t)
 
 ;; I ♥ UNICODE (in hex at least)
 (setq read-quoted-char-radix 16)

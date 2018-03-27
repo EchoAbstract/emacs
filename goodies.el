@@ -95,6 +95,13 @@
 
 (setq split-window-preferred-function 'baw-split-window)
 
+
+;;; Functions of dubious value...
+
+(defun baw-remove-frame-background ()
+  "Remove the background color for the current frame."
+  (interactive)
+  (set-face-background 'default "unspecified-bg" (selected-frame)))
 
 
 ;;; Emoji hacks
