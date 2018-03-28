@@ -177,13 +177,13 @@
   (split-window-horizontally)
   (toggle-frame-maximized)
 
-  (load-theme 'dracula t))
+  (load-theme 'leuven t))
 
 
 (defun init/setup-terminal ()
   "Set up the terminal the way we like it."
   (menu-bar-mode -1)
-  (load-theme 'cyberpunk t))
+  (load-theme 'moe-dark t))
 
 (add-hook 'after-init-hook (lambda ()
                              (if window-system
@@ -191,18 +191,14 @@
                                (init/setup-terminal))))
 
 ;; GUI Themes
-
-;; I really like this theme, but it has some usability bugs
-;; so I should fork and fix
-;; (use-package monotropic-theme
-;;   :ensure t
-;;   :config
-;;   (if window-system
-;;       (load-theme 'monotropic t)))
-
 (use-package monotropic-theme :ensure t)
 (use-package dracula-theme :ensure t)
 (use-package cyberpunk-theme :ensure t)
+(use-package rebecca-theme :ensure t)
+(use-package material-theme :ensure t)
+(use-package leuven-theme :ensure t)
+(use-package plan9-theme :ensure t)
+(use-package moe-theme :ensure t)
 
 ;; I ♥ UNICODE (in hex at least)
 (setq read-quoted-char-radix 16)
@@ -433,21 +429,12 @@
 (use-package magit
   :ensure t
   :config (progn
-            (defadvice magit-status (around magit-fullscreen activate)
-              "Make magit-status run alone in a frame."
-              (window-configuration-to-register :magit-fullscreen)
-              ad-do-it
-              (delete-other-windows))
-
             (defun magit-quit-session ()
-              "Restore the previous window configuration and kill the magit buffer."
+              "Quit the magit buffer"
               (interactive)
-              (kill-buffer)
-              (jump-to-register :magit-fullscreen))
-
+              (kill-buffer))
             (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
   :defer 10)
-
 
 (use-package expand-region
   :defer t

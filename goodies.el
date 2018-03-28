@@ -103,6 +103,25 @@
   (interactive)
   (set-face-background 'default "unspecified-bg" (selected-frame)))
 
+
+(defvar *baw-last-enabled-theme* nil "the last theme that was enabled")
+
+
+
+(defun baw-load-theme-advice (f theme &optional no-confirm no-enable)
+  "Disables theme before enabling"
+  (message (format "Disabling %s and enabling %s" *baw-last-enabled-theme* theme))
+  (unless (null *baw-last-enabled-theme*)
+    (disable-theme *baw-last-enabled-theme*))
+
+  (setq *baw-last-enabled-theme* theme)
+  (apply f theme no-confirm no-enable))
+
+(advice-add 'load-theme
+            :around
+            #'baw-load-theme-advice)
+
+
 
 ;;; Emoji hacks
 (defun shrug ()
