@@ -46,7 +46,7 @@
   :init (progn
           (add-hook 'after-init-hook #'global-company-mode))
   :config (progn
-            (setq company-idle-delay              nil
+            (setq company-idle-delay              2
                   company-minimum-prefix-length   2
                   company-show-numbers            t
                   company-tooltip-limit           20
@@ -75,7 +75,6 @@
 ;;;; Lisp programming
 (use-package geiser :defer t :ensure t)
 (use-package paredit :defer t :ensure t)
-
 
 ;;;; Building
 (use-package cmake-mode
@@ -117,6 +116,11 @@
             (setq ff-ignore-include t) ; I don't want this to jump to includes
             (setq ff-other-file-alist init/cpp-other-file-alist)
             (setq compilation-scroll-output t)))
+
+(use-package modern-cpp-font-lock
+  :ensure t
+  :config (modern-c++-font-lock-global-mode t))
+
 
 (use-package glsl-mode :defer t :ensure t)
 (use-package clang-format :defer t :ensure t)
