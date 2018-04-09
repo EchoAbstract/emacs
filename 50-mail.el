@@ -93,6 +93,12 @@
 ;; Don't ask to quit... why is this the default?
 (setq mu4e-confirm-quit nil)
 
+;; enable inline images
+(setq mu4e-view-show-images t)
+;; use imagemagick, if available
+(when (fboundp 'imagemagick-register-types)
+  (imagemagick-register-types))
+
 
 ;; sending mail -- replace USERNAME with your gmail username
 ;; also, make sure the gnutls command line utils are installed
