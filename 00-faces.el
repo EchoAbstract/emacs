@@ -56,43 +56,33 @@ Pases NO-CONFIRM and NO-ENABLE to `load-theme'."
             :around
             #'baw-load-theme-advice)
 
-
-
 ;;;; Basic TODO Support
 (defvar *baw/fixme-modes*
   '(c++-mode c-mode emacs-lisp-mode)
   "List of major modes to fontify TODO/NOTE Marks.")
 
+;; compilation-warning, compilation-info, compilation-error
 (defun baw/add-todo-faces ()
   "Add my faces to specific modes."
   (mapc (lambda (mode)
           (font-lock-add-keywords
            mode
-           '(("\\<\\(TODO\\)" 1 'font-lock-error-face t)
-             ("\\<\\(NOTE\\)" 1 'font-lock-warning-face t))))
+           '(("\\<\\(NOTE\\s-*?\\(?:\\s(\\sw+?\\s)\\)?\\s*?:\\)" 1 'compilation-info t)
+             ("\\<\\(TODO\\s-*?\\(?:\\s(\\sw+?\\s)\\)?\\s*?:\\)" 1 'compilation-warning t)
+             ("\\<\\(FIXME\\s-*?\\(?:\\s(\\sw+?\\s)\\)?\\s*?:\\)" 1 'compilation-error t)
+             ("\\<\\(BUG\\s-*?\\(?:\\s(\\sw+?\\s)\\)?\\s*?:\\)" 1 'compilation-error t))))
         *baw/fixme-modes*))
 
 (add-hook 'after-init-hook #'baw/add-todo-faces)
 
-;; TODO (brian): This is a test
-;; NOTE (brian): This is not a test
-
-
-;; (defface baw/font-lock-fixme-face
-;;   'default
-;;   "Face for TODO, FIXME, BUG, etc keywords.")
-
-;;  (make-face 'font-lock-fixme-face)
-;;  (make-face 'font-lock-note-face)
-;;  (mapc (lambda (mode)
-;; 	 (font-lock-add-keywords
-;; 	  mode
-;; 	  '(("\\<\\(TODO\\)" 1 'font-lock-fixme-face t)
-;;             ("\\<\\(NOTE\\)" 1 'font-lock-note-face t))))
-;; 	fixme-modes)
-;;  (modify-face 'font-lock-fixme-face "Red" nil nil t nil t nil nil)
-
-
+;; TODO (brian): This is a sample todo
+;; TODO: Also, this
+;; NOTE (brian): This is a sample note
+;; NOTE: Also this
+;; FIXME (brian): This is a sample FIXME
+;; FIXME: Also, this
+;; BUG (brian): This is a sample BUG
+;; BUG: Also this
 
 (provide '00-faces)
 ;;; 00-faces.el ends here
