@@ -1,4 +1,4 @@
-;;; work.el --- Load work specific stuff             -*- lexical-binding: t; -*-
+;;; 90-work.el --- Load work specific stuff             -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2018  Brian Wilson
 
@@ -70,5 +70,5 @@
 
 (init/maybe-load-oblong)
 
-(provide 'work)
-;;; work.el ends here
+(provide '90-work)
+;;; 90-work.el ends here
