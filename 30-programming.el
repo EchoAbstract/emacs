@@ -50,8 +50,13 @@
                   company-minimum-prefix-length   2
                   company-show-numbers            t
                   company-tooltip-limit           20
+                  ;; From the info page
+                  ;; If you set this value to nil, you may also want to set
+                  ;; ‘company-dabbrev-ignore-case’ to any value other than ‘keep-prefix’.
                   company-dabbrev-downcase        nil)
-            (setq company-backends (delete 'company-semantic company-backends)))
+            (setq company-backends (delete 'company-semantic company-backends))
+            (global-set-key (kbd "M-/") 'company-complete)
+            (global-set-key (kbd "C-M-i") 'company-complete))
   :diminish (company-mode . "Ⓒ"))
 
 
@@ -136,7 +141,32 @@
             (setq js2-basic-offset 2)
             (subword-mode 1)))           ; Enable subword mode
 
-(use-package tide :ensure t :defer t)            ; TypeScript
+;; TypeScript
+(defun init/setup-tide-mode ()
+  "Setup TypeScript Interactive Development Environment for Emacs."
+  (interactive)
+  (tide-setup)
+  (eldoc-mode +1)
+  (tide-hl-identifier-mode +1))
+
+(defun init/tide-mode-before-save-hook ()
+  "If we're in TypeScript mode, format before saving."
+  (when (eq major-mode 'typescript)
+    (tide-format-before-save)))
+
+(use-package tide
+  :ensure t
+  :init (progn
+          (add-hook 'typescript-mode-hook #'init/setup-tide-mode))
+  :config (progn
+
+            ;; aligns annotation to the right hand side
+            (setq company-tooltip-align-annotations t) ; FIXME(brian): This feels wrong...
+
+            ;; formats the buffer before saving
+            (add-hook 'before-save-hook #'init/tide-mode-before-save-hook)
+            (add-hook 'typescript-mode-hook #'init/setup-tide-mode))
+  :defer t)
 
 (use-package web :ensure t :defer t)             ; Make web requests
 

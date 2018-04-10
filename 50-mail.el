@@ -29,7 +29,7 @@
 
 ;;; Code:
 
-(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu/mu4e")
+(add-to-list 'load-path "~/src/mu/mu4e")
 (load-library "mu4e")
 
 (setq mu4e-contexts
@@ -51,6 +51,8 @@
   (setq mu4e-alert-interesting-mail-query
     (concat
      "flag:unread maildir:/ObMail/INBOX"
+     "OR "
+     "flag:unread maildir:/ObMail/[Gmail].Starred"
      ))
   (mu4e-alert-enable-mode-line-display)
   (defun gjstein-refresh-mu4e-alert-mode-line ()
@@ -78,6 +80,18 @@
                     (mu4e~mark-check-target target) "-N"))))
 
 ;; Include a bookmark to open all of my inboxes
+(add-to-list 'mu4e-bookmarks
+       (make-mu4e-bookmark
+        :name "New Meetings"
+        :query "flag:unread maildir:/ObMail/Meetings"
+        :key ?m))
+
+(add-to-list 'mu4e-bookmarks
+       (make-mu4e-bookmark
+        :name "Starred"
+        :query "maildir:/ObMail/[Gmail].Starred"
+        :key ?s))
+
 (add-to-list 'mu4e-bookmarks
        (make-mu4e-bookmark
         :name "All Inboxes"

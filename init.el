@@ -174,7 +174,8 @@ Applies to the curren window unless WINDOW is specified."
 
 (defun init/terminal-setup ()
   "Setup bits for terminals only."
-  (message "INIT: Loading terminal configuration"))
+  (message "INIT: Loading terminal configuration")
+  (menu-bar-mode -1))
 
 
 (defun init/common-setup ()

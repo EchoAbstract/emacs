@@ -45,7 +45,7 @@
 ;;;; YASnippet
 (use-package yasnippet
   :ensure t
-  :diminish (yas . "Ⓨ")
+  :diminish (yas-minor-mode . "Ⓨ")
   :config (progn
             (add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
             ;; From https://stackoverflow.com/questions/28487400/how-to-unset-yasnippets-tab-key
