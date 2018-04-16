@@ -92,12 +92,6 @@ If IGNORE-MISSING-P is true then don't warn if we can't find the file."
   "Load CONFIG-FILE only if it exists.  Be noisey if LOG-P is true."
   (init/maybe-load-file (concat user-emacs-directory config-file) log-p t))
 
-(defun init/safe-set-face-font (face font-family font-size)
-  "Set the font for FACE to FONT-FAMILY (with FONT-SIZE) if it exists."
-  (when (member font-family (font-family-list))
-    (set-face-font face (concat font-family "-" (number-to-string font-size)))))
-
-
 (defvar *init/org-scratch-buffer-name* "*org-notes*"
   "The name for our scratch org buffer.")
 
@@ -131,7 +125,7 @@ If IGNORE-MISSING-P is true then don't warn if we can't find the file."
 (defun baw-split-window (&optional window)
   "Maybe split the window sensibly.
 
-Applies to the curren window unless WINDOW is specified."
+Applies to the current window unless WINDOW is specified."
   (cond ((baw-should-split-sensibly-p)
          (split-window-sensibly window))
         (t
@@ -143,12 +137,6 @@ Applies to the curren window unless WINDOW is specified."
 (defun init/gui-setup ()
   "Setup bits for GUI environments."
   (message "INIT: Loading GUI configuration")
-  (init/safe-set-face-font 'variable-pitch "Symbola" 14)
-  (when (member "Noto Color Emoji" (font-family-list))
-    (set-fontset-font t 'unicode "Noto Color Emoji" nil 'prepend))
-
-  (when (member "Apple Color Emoji" (font-family-list))
-    (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend))
 
   ;; Set the frame title for Quantified Self Capture
   (setq frame-title-format " %b -- %m -- Emacs")
