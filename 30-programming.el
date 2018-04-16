@@ -126,20 +126,25 @@
   :ensure t
   :config (modern-c++-font-lock-global-mode t))
 
-
 (use-package glsl-mode :defer t :ensure t)
 (use-package clang-format :defer t :ensure t)
 
 
 ;;;; Web
+
+(defun init/js-common-hooks ()
+  "Common code after JS modes load."
+  (subword-mode 1)
+  (setq js2-basic-offset 2))
+
 (use-package js2-mode
   :defer t
   :ensure t
   :init (progn
             (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
             (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
-            (setq js2-basic-offset 2)
-            (subword-mode 1)))           ; Enable subword mode
+            (setq-default js2-basic-offset 2)
+            (add-hook 'js2-mode-hook #'init/js-common-hooks)))
 
 ;; TypeScript
 (defun init/setup-tide-mode ()
