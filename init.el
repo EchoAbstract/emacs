@@ -105,34 +105,6 @@ If IGNORE-MISSING-P is true then don't warn if we can't find the file."
     (insert (concat "* Notes for " (format-time-string "%Y-%m-%d")))
     (insert "\n\n")))
 
-
-(defvar *baw-modes-allowed-to-split*
-  '("magit" "COMMIT_EDITMSG")
-  "Regexps that match major modes allowed to split my windows.")
-
-(defun baw-major-mode-contains-p (partial-string)
-  "Does the current `major-mode' contain PARTIAL-STRING?"
-  (not
-   (null
-    (string-match-p (regexp-quote partial-string) (symbol-name major-mode)))))
-
-(defun baw-should-split-sensibly-p ()
-  "Determine if the current major mode is allowed to split."
-  (not
-   (null
-    (seq-filter 'baw-major-mode-contains-p *baw-modes-allowed-to-split*))))
-
-(defun baw-split-window (&optional window)
-  "Maybe split the window sensibly.
-
-Applies to the current window unless WINDOW is specified."
-  (cond ((baw-should-split-sensibly-p)
-         (split-window-sensibly window))
-        (t
-         nil)))
-
-(setq split-window-preferred-function 'baw-split-window)
-
 ;;;; Setup hooks
 (defun init/gui-setup ()
   "Setup bits for GUI environments."
@@ -154,10 +126,9 @@ Applies to the current window unless WINDOW is specified."
   (if (fboundp 'scroll-bar-mode)
       (scroll-bar-mode -1))   ; Disable the scrollbars
 
-  (split-window-horizontally)
   (when (< (length command-line-args) 2)
-    (switch-to-buffer "*scratch*"))
-  (switch-to-buffer-other-window *init/org-scratch-buffer-name*)
+    (switch-to-buffer *init/org-scratch-buffer-name*))
+  (split-window-horizontally)
   (toggle-frame-maximized))
 
 (defun init/terminal-setup ()
