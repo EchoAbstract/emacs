@@ -753,8 +753,11 @@ Pases NO-CONFIRM and NO-ENABLE to `load-theme'."
      ;; `(yas-field-highlight-face ((t ())))))
 )))
 
-
-
+(defvar *init/use-color-emoji*
+  (if (eq system-type 'darwin)
+      t
+    nil)
+  "T if we should use color emoji, NIL if they will crash Emacs.")
 
 (defun init/setup-faces ()
   "After we're done loading Emacs, setup our fonts."
@@ -765,11 +768,17 @@ Pases NO-CONFIRM and NO-ENABLE to `load-theme'."
   (init/safe-set-face-font 'variable-pitch "Symbola" 14)
   (init/safe-set-face-font 'interface-variable-pitch "Inter UI" 12)
 
-  (when (member "Noto Color Emoji" (font-family-list))
-    (set-fontset-font t 'unicode "Noto Color Emoji" nil 'prepend))
-
-  (when (member "Apple Color Emoji" (font-family-list))
-    (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend)))
+  (cond (*init/use-color-emoji*
+         (cond ((member "Apple Color Emoji" (font-family-list))
+                (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend))
+               ((member "Noto Color Emoji" (font-family-list))
+                (set-fontset-font t 'unicode "Noto Color Emoji" nil 'prepend))
+               (t
+                 (set-fontset-font t 'unicode "Symbola" nil 'prepend))))
+        ((member "Symbola" (font-family-list))
+         (set-fontset-font t 'unicode "Symbola" nil 'prepend))
+        (t
+         (message "No font found for Emoji, so it'll be boring"))))
 
 (add-hook 'after-init-hook #'init/setup-faces)
 
