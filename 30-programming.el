@@ -132,6 +132,11 @@
 
 ;;;; Web
 
+;; For CSS and other programming stuff we like to
+;; see colors
+(use-package rainbow-mode
+  :ensure t)
+
 (defun init/js-common-hooks ()
   "Common code after JS modes load."
   (subword-mode 1)

@@ -78,6 +78,10 @@
   :defer t
   :ensure t)
 
+(use-package multi-term
+  :defer t
+  :ensure t)
+
 (use-package magit
   :ensure t
   :init (progn

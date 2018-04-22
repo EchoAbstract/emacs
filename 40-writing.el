@@ -30,11 +30,14 @@
 ;;; Code:
 
 (use-package pandoc-mode :defer t :ensure t)
-(use-package markdown-mode :defer t :ensure t)
 
+(use-package markdown-mode
+  :defer t
+  :ensure t
+  :init (progn
+          (add-to-list 'auto-mode-alist '("\\.md.html\\'" . markdown-mode))))
 
 ;;; LaTeX with AUCTeX
-
 (use-package tex-site                   ; AUCTeX initialization
   :defer t
   :ensure auctex)
