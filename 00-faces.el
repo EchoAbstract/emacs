@@ -693,8 +693,9 @@ Pases NO-CONFIRM and NO-ENABLE to `load-theme'."
 
   (init/set-my-faces)
 
-  (init/safe-set-face-font 'variable-pitch "Symbola" 14)
-  (init/safe-set-face-font 'interface-variable-pitch "Inter UI" 12)
+  (init/safe-set-face-font 'default "Inconsolata" 9)
+  (init/safe-set-face-font 'variable-pitch "Symbola" 9)
+  (init/safe-set-face-font 'interface-variable-pitch "Inter UI" 11)
 
   (cond (*init/use-color-emoji*
          (cond ((member "Apple Color Emoji" (font-family-list))

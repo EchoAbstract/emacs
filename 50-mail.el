@@ -28,8 +28,6 @@
 ;; TODO
 
 ;;; Code:
-
-(add-to-list 'load-path "~/src/mu/mu4e")
 (load-library "mu4e")
 
 (setq mu4e-contexts

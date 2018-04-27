@@ -183,7 +183,6 @@ If IGNORE-MISSING-P is true then don't warn if we can't find the file."
   (show-paren-mode 1)         ; I like to see my parens
   (display-time)              ; Full-screen emacs without a time?
   (column-number-mode 1)      ; What's my current column?
-  (global-hl-line-mode)       ; Highlight the current line
 
   ;; Prevent custom stuff from ending up in a vc controlled file
   (let ((custom-file-location (concat user-emacs-directory "custom.el")))
@@ -256,7 +255,13 @@ If IGNORE-MISSING-P is true then don't warn if we can't find the file."
 (init/maybe-load-config "20-org" t)         ; Org mode
 (init/maybe-load-config "30-programming" t) ; Programming
 (init/maybe-load-config "40-writing" t)     ; Document generation
-(init/maybe-load-config "50-mail" t)        ; email
+
+;; Mail is a bit different, since I haven't solved the mu4e install
+;; issue.  So if it fails to load, just ignore it
+(condition-case nil
+    (init/maybe-load-config "50-mail" t)        ; email
+  (error nil))
+
 (init/maybe-load-config "90-work" t)        ; Work stuff
 
 ;; Reset the cons threshhold
