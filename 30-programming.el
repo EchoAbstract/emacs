@@ -113,7 +113,7 @@
     ("\\.cc\\'" (".h" ".hh"))
     ("\\.hh\\'" (".cc" ".cpp"))
     ("\\.c\\'" (".h"))
-    ("\\.h\\'" (".cpp" ".cc" ".c"))))
+    ("\\.h\\'" (".cpp" ".cc" ".c" ".C"))))
 
 (add-hook 'c-mode-common-hook
           (lambda ()
