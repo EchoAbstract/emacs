@@ -55,7 +55,6 @@
 (require 'package)
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-(package-initialize)
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -127,9 +126,10 @@ If IGNORE-MISSING-P is true then don't warn if we can't find the file."
       (scroll-bar-mode -1))   ; Disable the scrollbars
 
   (when (< (length command-line-args) 2)
-    (switch-to-buffer *init/org-scratch-buffer-name*)))
-  ;(split-window-horizontally)
-  ;(toggle-frame-maximized))
+    (switch-to-buffer *init/org-scratch-buffer-name*)
+    (split-window-vertically)
+    (switch-to-buffer-other-window "*scratch*")
+    (other-window 1)))
 
 (defun init/terminal-setup ()
   "Setup bits for terminals only."
@@ -203,6 +203,7 @@ If IGNORE-MISSING-P is true then don't warn if we can't find the file."
     :if (and (eq system-type 'darwin) (display-graphic-p))
     :config
     (progn
+      (setq exec-path-from-shell-check-startup-files nil)
       (dolist (var '("EMAIL" "PYTHONPATH" "INFOPATH" "JAVA_OPTS"))
         (add-to-list 'exec-path-from-shell-variables var))
       (exec-path-from-shell-initialize)
