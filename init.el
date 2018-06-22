@@ -255,6 +255,7 @@ If IGNORE-MISSING-P is true then don't warn if we can't find the file."
 (init/maybe-load-config "20-org" t)         ; Org mode
 (init/maybe-load-config "30-programming" t) ; Programming
 (init/maybe-load-config "40-writing" t)     ; Document generation
+(init/maybe-load-config "99-scratch" t)     ; Misc junk
 
 ;; Mail is a bit different, since I haven't solved the mu4e install
 ;; issue.  So if it fails to load, just ignore it
