@@ -28,6 +28,10 @@
 ;; TODO
 
 ;;; Code:
+
+(when (eq system-type 'gnu/linux)
+  (add-to-list 'load-path "/usr/share/emacs/site-lisp/mu4e"))
+
 (load-library "mu4e")
 
 (setq mu4e-contexts

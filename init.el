@@ -127,9 +127,9 @@ If IGNORE-MISSING-P is true then don't warn if we can't find the file."
       (scroll-bar-mode -1))   ; Disable the scrollbars
 
   (when (< (length command-line-args) 2)
-    (switch-to-buffer *init/org-scratch-buffer-name*))
-  (split-window-horizontally)
-  (toggle-frame-maximized))
+    (switch-to-buffer *init/org-scratch-buffer-name*)))
+  ;(split-window-horizontally)
+  ;(toggle-frame-maximized))
 
 (defun init/terminal-setup ()
   "Setup bits for terminals only."
