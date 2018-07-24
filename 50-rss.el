@@ -37,7 +37,8 @@
                   '("http://irreal.org/blog/?feed=rss2"
                     "https://nilsdeppe.com/feed.xml"
                     "http://cestlaz.github.io/rss.xml"
-                    "http://planet.emacsen.org/atom.xml"))))
+                    "http://planet.emacsen.org/atom.xml"
+                    "https://caitiem.com/feed/"))))
 
 (provide '50-rss)
 ;;; 50-rss.el ends here
