@@ -29,32 +29,97 @@
 
 ;;; Code:
 
-
 ;;;; First things first
-(defvar init/original-gc-cons-threshold nil
-  "Placeholder for Emacs default `gc-cons-threshold'.")
+(defun init-log (message)
+  "Force log messages to be visible in messages buffer"
+  (concat "--- INIT: " message))
 
-(setq init/original-gc-cons-threshold gc-cons-threshold)
-(setq gc-cons-threshold 100000000) ; Temporarily bump up the gc threshold
 
-;; Never load the older of byte-code vs. elisp
-(setq load-prefer-newer t)
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Loading Brian's functions")
+; ────────────────────────────────────────────────────────────────────────────
 
-;; If we're profiling we want to start it as early as possible
-(defvar init/profile-emacs-init-time t
-  "Setup various things for profiling startup time.")
+(load (concat user-emacs-directory "funcs.el"))
 
-;; Disabled for now
-(setq init/profile-emacs-init-time nil)
 
-(when init/profile-emacs-init-time
-  (setq use-package-compute-statistics t))
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Emacs variable configuration")
+; ────────────────────────────────────────────────────────────────────────────
 
-;; Set up `use-package` mode
-;; This is how we load most of the other packages in our init
+;; Simple
+(setq backup-by-copying t)       ; don't clobber symlinks
+(setq backup-directory-alist'(("." . "/tmp/emacs")))
+(setq delete-old-versions t)     ; limit how much space we take up
+(setq inhibit-startup-screen t)  ; I'll miss it, but it no longer works for me
+(setq kept-new-versions 6)       ; keep more from this session
+(setq kept-old-versions 2)       ; keep less from last session
+(setq load-prefer-newer t)       ; Load .el if newer than .elc
+(setq suggest-key-bindings t)    ; Teach me about new bindings
+(setq version-control nil)       ; Don't version the backup files
+(setq visible-bell t)            ; Don't beep
+
+(setq-default fill-column 78)          ; Wider fill by default
+(setq-default indent-tabs-mode nil)    ; Prevent tabs by default
+(setq-default tab-width 2)             ; If we are using tabs, make them small
+
+
+;; Complex
+
+;; Prevent custom stuff from ending up in a vc controlled file
+(let ((custom-file-location (concat user-emacs-directory "custom.el")))
+  (setq custom-file custom-file-location)
+  (load custom-file-location t))
+
+
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Other built-in customizations")
+; ────────────────────────────────────────────────────────────────────────────
+
+(column-number-mode 1)      ; What's my current column?
+(display-battery-mode 1)    ; Hopefully this works without a battery?
+(display-time)              ; Full-screen emacs without a time?
+(global-subword-mode)       ; I prefer camel case...
+(scroll-bar-mode -1)        ; No Scrollbars
+(show-paren-mode 1)         ; I like to see my parens
+(tool-bar-mode -1)          ; No toolbars
+
+;; Don't make me type out `yes'
+(fset 'yes-or-no-p 'y-or-n-p)   ; Make y/n prompts easier
+
+
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "GUI / TUI config")
+; ────────────────────────────────────────────────────────────────────────────
+
+(if (display-graphic-p)
+    (progn
+      (setq frame-title-format " %b -- %m -- Emacs"))
+  (progn
+    (menu-bar-mode nil)))
+
+
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Platform specific config (pre-packages)")
+; ────────────────────────────────────────────────────────────────────────────
+
+(cond ((equal system-type 'darwin)
+       (init-log "Darwin/macOS")
+       (setq mac-command-modifier 'meta) ; Set META-Key to be CMD
+       (setq mac-option-modifier 'none)) ; Unset Option so we get fancy inputs
+      ((equal system-type 'windows-nt)
+       (init-log "Windows"))
+      (t
+       (init-log "UNIX/Linux")))
+
+
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Loading/configuring packages")
+; ────────────────────────────────────────────────────────────────────────────
 (require 'package)
+
 (setq package-enable-at-startup nil)
 (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+(package-initialize)
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -63,213 +128,417 @@
 (eval-when-compile
   (require 'use-package))
 
-;; This is a profiling tool for this startup script.
-;; It's pretty useful, even though the variables are
-;; defined above, we need to wait for `use-package'
-;; to be able to actually use it
-(use-package esup
-  :when init/profile-emacs-init-time
+(use-package diminish :ensure t)
+
+(use-package ivy
+  :ensure t
+  :init (progn
+          (ivy-mode 1)
+          (setq ivy-use-virtual-buffers t)
+          (setq magit-completing-read-function 'ivy-completing-read))
+  :diminish (ivy-mode . "Ⓘ"))
+
+;; Info mode additions
+(use-package info-colors
+  :defer t
+  :ensure t
+  :config
+  (progn
+    (add-hook 'Info-mode-hook		; After Info-mode has started
+              (lambda ()
+                (setq Info-additional-directory-list Info-default-directory-list)))
+    (add-hook 'Info-selection-hook 'info-colors-fontify-node)))
+
+(use-package ag
   :defer t
   :ensure t)
 
-;;;; Utilites to help with the rest of the program
-(defun init/maybe-load-file (file &optional log-p ignore-missing-p)
-  "Load FILE only if it exists.
+(use-package discover-my-major
+  :defer t
+  :ensure t)
 
-If LOG-P is true, indicate that we're trying to load the file.
-If IGNORE-MISSING-P is true then don't warn if we can't find the file."
+(use-package neotree
+  :defer t
+  :ensure t)
 
-  (when log-p (message (format "INIT: Trying to load %s." file)))
-  (if (or
-       (file-exists-p file)
-       (file-exists-p (concat file ".el"))
-       (file-exists-p (concat file ".elc")))
-      (load file)
-    (unless ignore-missing-p (warn (concat "Can't load non-existent file: " file)))))
+(use-package multi-term
+  :defer t
+  :ensure t)
 
-(defun init/maybe-load-config (config-file &optional log-p)
-  "Load CONFIG-FILE only if it exists.  Be noisey if LOG-P is true."
-  (init/maybe-load-file (concat user-emacs-directory config-file) log-p t))
+(use-package magit
+  :ensure t
+  :init (progn
+            (setq magit-diff-options (quote ("--word-diff")))
+            (setq magit-diff-refine-hunk 'all))
+  :config (progn
+            (defun magit-quit-session ()
+              "Quit the magit buffer"
+              (interactive)
+              (kill-buffer))
+            (define-key magit-status-mode-map (kbd "q") 'magit-quit-session))
+  :defer 10)
 
-(defvar *init/org-scratch-buffer-name* "*org-notes*"
-  "The name for our scratch org buffer.")
+(use-package expand-region
+  :ensure t
+  :config (progn
+            (global-set-key (kbd "C-=") 'er/expand-region)))
 
-(defun init/create-scratch-org-buffer ()
-  "Create a new scratch `org-mode' buffer."
+(use-package pandoc-mode :defer t :ensure t)
+
+(use-package markdown-mode
+  :defer t
+  :ensure t
+  :init (progn
+          (add-to-list 'auto-mode-alist '("\\.md.html\\'" . markdown-mode))))
+
+;;; LaTeX with AUCTeX
+(use-package tex-site                   ; AUCTeX initialization
+  :defer t
+  :ensure auctex)
+
+(use-package tex                        ; TeX editing/processing
+  :ensure auctex
+  :defer t
+  :config
+  (setq TeX-parse-self t                ; Parse documents to provide completion
+                                        ; for packages, etc.
+        TeX-auto-save t                 ; Automatically save style information
+        TeX-electric-sub-and-superscript t ; Automatically insert braces after
+                                        ; sub- and superscripts in math mode
+        TeX-electric-math '("\\(" "\\)")
+        ;; Don't insert magic quotes right away.
+        TeX-quote-after-quote t
+        ;; Don't ask for confirmation when cleaning
+        TeX-clean-confirm nil
+        ;; Provide forward and inverse search with SyncTeX
+        TeX-source-correlate-mode t
+        TeX-source-correlate-method 'synctex)
+  (setq-default TeX-master nil          ; Ask for the master file
+                TeX-engine 'luatex      ; Use a modern engine
+                ;; Redundant in 11.88, but keep for older AUCTeX
+                TeX-PDF-mode t)
+
+  ;; Move to chktex
+  (setcar (cdr (assoc "Check" TeX-command-list)) "chktex -v6 %s"))
+
+(use-package tex-buf                    ; TeX buffer management
+  :ensure auctex
+  :defer t
+  ;; Don't ask for confirmation when saving before processing
+  :config (setq TeX-save-query nil))
+
+(use-package tex-style                  ; TeX style
+  :ensure auctex
+  :defer t
+  :config
+  ;; Enable support for csquotes
+  (setq LaTeX-csquotes-close-quote "}"
+        LaTeX-csquotes-open-quote "\\enquote{"))
+
+(use-package tex-fold                   ; TeX folding
+  :ensure auctex
+  :defer t
+  :init (add-hook 'TeX-mode-hook #'TeX-fold-mode))
+
+(use-package tex-mode                   ; TeX mode
+  :ensure auctex
+  :defer t
+  :config
+  (font-lock-add-keywords 'latex-mode
+                          `((,(rx "\\"
+                                  symbol-start
+                                  "fx" (1+ (or (syntax word) (syntax symbol)))
+                                  symbol-end)
+                             . font-lock-warning-face))))
+
+(use-package latex                      ; LaTeX editing
+  :ensure auctex
+  :defer t
+  :config
+  ;; Teach TeX folding about KOMA script sections
+  (setq TeX-outline-extra `((,(rx (0+ space) "\\section*{") 2)
+                            (,(rx (0+ space) "\\subsection*{") 3)
+                            (,(rx (0+ space) "\\subsubsection*{") 4)
+                            (,(rx (0+ space) "\\minisec{") 5))
+        ;; No language-specific hyphens please
+        LaTeX-babel-hyphen nil)
+
+  (add-hook 'LaTeX-mode-hook #'LaTeX-math-mode))    ; Easy math input
+
+(use-package auctex-latexmk             ; latexmk command for AUCTeX
+  :ensure t
+  :defer t
+  :after latex
+  :init (auctex-latexmk-setup))
+
+;; (use-package auctex-skim                ; Skim as viewer for AUCTeX
+;;   :load-path "lisp/"
+;;   :commands (auctex-skim-select)
+;;   :after tex
+;;   :init (auctex-skim-select))
+
+
+(use-package flycheck
+  :defer t
+  :ensure t
+  :diminish (flycheck-mode . "Ⓕ")
+  :init (progn
+          (add-hook 'after-init-hook #'global-flycheck-mode)
+          (add-hook 'c++-mode-hook (lambda () (setq flycheck-clang-language-standard "c++14")))
+          (setq flycheck-c/c++-clang-executable "~/LLVM/latest/bin/clang")
+          (setq flycheck-c/c++-clang-executable "~/LLVM/latest/bin/clang")
+          (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-gcc))))
+
+(use-package company
+  :ensure t
+  :init (progn
+          (add-hook 'after-init-hook #'global-company-mode))
+  :config (progn
+            (setq company-idle-delay              2
+                  company-minimum-prefix-length   2
+                  company-show-numbers            t
+                  company-tooltip-limit           20
+                  ;; From the info page
+                  ;; If you set this value to nil, you may also want to set
+                  ;; ‘company-dabbrev-ignore-case’ to any value other than ‘keep-prefix’.
+                  company-dabbrev-downcase        nil)
+            (setq company-backends (delete 'company-semantic company-backends))
+            ;; (global-set-key (kbd "M-/") 'company-complete)
+            (global-set-key (kbd "C-M-i") 'company-complete))
+  :diminish (company-mode . "Ⓒ"))
+
+
+;;;; shell-scripting
+(add-hook 'after-save-hook
+          'executable-make-buffer-file-executable-if-script-p)
+
+;;;; elisp
+(use-package f :defer t :ensure t)               ; Modern File API
+(use-package kv :defer t :ensure t)              ; Modern Key-Value API
+
+(use-package elisp-slime-nav
+  :defer t
+  :ensure t)
+
+(use-package eros
+  :defer t
+  :ensure t
+  :config (eros-mode t))
+
+;;;; Lisp programming
+(use-package geiser :defer t :ensure t)
+(use-package paredit :defer t :ensure t)
+
+;;;; Building
+(use-package cmake-mode
+  :defer t
+  :ensure t)
+
+(use-package meson-mode
+  :defer t
+  :ensure t)
+
+;;;; Data interchange formats
+(use-package yaml-mode
+  :defer t
+  :ensure t)
+
+(require 'ansi-color)
+(defun colorize-compilation-buffer ()
+  "Filter that ansi-colors compilation region."
+  (read-only-mode 0)
+  (ansi-color-apply-on-region compilation-filter-start (point))
+  (read-only-mode 1))
+
+(add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
+
+(setq init/cpp-other-file-alist
+  '(("\\.cpp\\'" (".h" ".hpp" ".hh"))
+    ("\\.hpp\\'" (".cpp" ".cc"))
+    ("\\.cc\\'" (".h" ".hh"))
+    ("\\.hh\\'" (".cc" ".cpp"))
+    ("\\.c\\'" (".h"))
+    ("\\.C\\'" (".h"))
+    ("\\.h\\'" (".cpp" ".cc" ".c" ".C"))))
+
+(add-hook 'c-mode-common-hook
+          (lambda ()
+            (setq ff-ignore-include t) ; I don't want this to jump to includes
+            (setq ff-other-file-alist init/cpp-other-file-alist)
+            (setq compilation-scroll-output t)))
+
+(use-package modern-cpp-font-lock
+  :ensure t
+  :config (modern-c++-font-lock-global-mode t))
+
+(use-package glsl-mode :defer t :ensure t)
+(use-package clang-format :defer t :ensure t)
+;;;; Web
+
+;; For CSS and other programming stuff we like to
+;; see colors
+(use-package rainbow-mode
+  :ensure t)
+
+(defun init/js-common-hooks ()
+  "Common code after JS modes load."
+  (subword-mode 1)
+  (setq js2-basic-offset 2))
+
+(use-package js2-mode
+  :defer t
+  :ensure t
+  :init (progn
+            (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+            (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
+            (setq-default js2-basic-offset 2)
+            (add-hook 'js2-mode-hook #'init/js-common-hooks)))
+
+;; TypeScript
+(defun init/setup-tide-mode ()
+  "Setup TypeScript Interactive Development Environment for Emacs."
   (interactive)
-  (save-excursion
-    (switch-to-buffer (get-buffer-create *init/org-scratch-buffer-name*))
-    (org-mode)
-    (insert "#+TITLE: Org-Mode scratch buffer for notes\n\n")
-    (insert (concat "* Notes for " (format-time-string "%Y-%m-%d")))
-    (insert "\n\n")))
+  (tide-setup)
+  (eldoc-mode +1)
+  (tide-hl-identifier-mode +1))
 
-;;;; Setup hooks
-(defun init/gui-setup ()
-  "Setup bits for GUI environments."
-  (message "INIT: Loading GUI configuration")
+(defun init/tide-mode-before-save-hook ()
+  "If we're in TypeScript mode, format before saving."
+  (when (eq major-mode 'typescript)
+    (tide-format-before-save)))
 
-  ;; Set the frame title for Quantified Self Capture
-  (setq frame-title-format " %b -- %m -- Emacs")
+(use-package tide
+  :ensure t
+  :init (progn
+          (add-hook 'typescript-mode-hook #'init/setup-tide-mode))
+  :config (progn
 
-  ;; Frame commands
-  (global-set-key (kbd "M-`") 'other-frame)
+            ;; aligns annotation to the right hand side
+            (setq company-tooltip-align-annotations t) ; FIXME(brian): This feels wrong...
 
-  ;; Imenu
-  (global-set-key (kbd "<mouse-3>") 'imenu)
+            ;; formats the buffer before saving
+            (add-hook 'before-save-hook #'init/tide-mode-before-save-hook)
+            (add-hook 'typescript-mode-hook #'init/setup-tide-mode))
+  :defer t)
 
-  ;; Toolbar/menubar
-  (if (fboundp 'tool-bar-mode)
-      (tool-bar-mode -1))     ; Disable the toolbar
+(use-package web :ensure t :defer t)             ; Make web requests
 
-  (if (fboundp 'scroll-bar-mode)
-      (scroll-bar-mode -1))   ; Disable the scrollbars
+(use-package web-mode                            ; Mixing HTML and Scripts
+  :defer t
+  :ensure t
+  :init
+  (progn
+    (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))))
 
-  (when (< (length command-line-args) 2)
-    (switch-to-buffer *init/org-scratch-buffer-name*)
-    (split-window-vertically)
-    (switch-to-buffer-other-window "*scratch*")
-    (other-window 1)))
-
-(defun init/terminal-setup ()
-  "Setup bits for terminals only."
-  (message "INIT: Loading terminal configuration")
-  (menu-bar-mode -1))
+;;;; Python
+(use-package elpy
+  :ensure t
+  :after python
+  :config
+  (elpy-enable)
+  )
 
 
-(defun init/common-setup ()
-  "Setup bits that should always be applied."
-  (message "INIT: Loading common configuration")
+;;;; golang
 
-  (add-hook 'after-init-hook #'init/create-scratch-org-buffer)
+(use-package go-mode :defer t :ensure t)
+(use-package flymake-go :defer t :ensure t)
+(use-package go-complete :defer t :ensure t
+  :config (progn
+            (add-hook 'completion-at-point-functions 'go-complete-at-point)))
+(use-package go-eldoc :defer t :ensure t)
+(use-package go-guru :defer t :ensure t)
+(use-package go-impl :defer t :ensure t)
+(use-package go-imports :defer t :ensure t)
 
-  (if (fboundp 'menu-bar-mode)
-      (menu-bar-mode nil))    ; Disable the menubar (Doesn't impact os-x)
 
-  (fset 'yes-or-no-p 'y-or-n-p)   ; Make y/n prompts easier
+;;;; Ops / Admin
+(use-package docker :defer t :ensure t)
+(use-package dockerfile-mode :defer t :ensure t)
+(use-package systemd :defer t :ensure t)
+(use-package launchctl :defer t :ensure t)
 
-  (setq-default fill-column 78)           ; Wider fill by default
-  (setq-default indent-tabs-mode nil)     ; Prevent tabs by default
-  (setq-default tab-width 2)              ; If we are using tabs, make them small
-  (setq suggest-key-bindings t)           ; Let emacs teach me
-  (setq visible-bell t)                   ; No beeps!
-  (setq inhibit-startup-screen t)         ; I'll miss it, but it no longer works for me
+;;;; Random...
+(use-package clojure-mode
+  :defer t
+  :ensure t)
 
-  (setq backup-by-copying t)      ; don't clobber symlinks
-  (setq backup-directory-alist
-	'(("." . "/tmp/emacs")))  ; don't litter my fs tree
-  (setq delete-old-versions t)    ; limit how much space we take up
-  (setq kept-new-versions 6)      ; keep more from this session
-  (setq kept-old-versions 2)      ; keep less from last session
-  (setq version-control t)        ; use versioned backups
+(use-package cider
+  :disabled
+  :ensure t)
 
-  ;; Make emacs window moving feel like my tmux setup
-  (global-unset-key (kbd "C-z")) ; Unset C-z so we don't get annoying hides :-)
-  (global-set-key (kbd "C-z h") 'windmove-left)
-  (global-set-key (kbd "C-z j") 'windmove-down)
-  (global-set-key (kbd "C-z k") 'windmove-up)
-  (global-set-key (kbd "C-z l") 'windmove-right)
-  (global-set-key (kbd "C-z <left>") 'windmove-left)
-  (global-set-key (kbd "C-z <down>") 'windmove-down)
-  (global-set-key (kbd "C-z <up>") 'windmove-up)
-  (global-set-key (kbd "C-z <right>") 'windmove-right)
-  (global-set-key (kbd "C-z b") 'windmove-left)
-  (global-set-key (kbd "C-z n") 'windmove-down)
-  (global-set-key (kbd "C-z p") 'windmove-up)
-  (global-set-key (kbd "C-z f") 'windmove-right)
-  (global-set-key (kbd "C-z o") 'other-window)
-  (global-set-key (kbd "C-z `") 'other-window)
+(use-package slime-docker
+  :defer t
+  :ensure t)
 
-  (show-paren-mode 1)         ; I like to see my parens
-  (display-time)              ; Full-screen emacs without a time?
-  (column-number-mode 1)      ; What's my current column?
+;; Apple's Swift Language
+(use-package swift-mode
+  :defer t
+  :ensure t)
 
-  ;; Prevent custom stuff from ending up in a vc controlled file
-  (let ((custom-file-location (concat user-emacs-directory "custom.el")))
-    (setq custom-file custom-file-location)
-    (load custom-file-location t)))
+;; OCaml Support
+(use-package tuareg
+  :defer t
+  :ensure t)
 
-;; macOS
-(defun init/darwin-init ()
-  "Define macOS specific initializations."
-  (message "INIT: Loading macOS config")
-  (setq mac-command-modifier 'meta)           ; Set META-Key to be CMD
-  (setq mac-option-modifier 'none)            ; Unset Option so we get fancy inputs
-  (if (display-graphic-p)
-      (global-set-key (kbd "M-0") 'suspend-frame)) ; and rebind it to be sort-of mac like
+(use-package kubernetes
+  :disabled
+  :ensure t)
 
-  (use-package exec-path-from-shell
-    :ensure t
-    :if (and (eq system-type 'darwin) (display-graphic-p))
-    :config
-    (progn
-      (setq exec-path-from-shell-check-startup-files nil)
-      (dolist (var '("EMAIL" "PYTHONPATH" "INFOPATH" "JAVA_OPTS"))
-        (add-to-list 'exec-path-from-shell-variables var))
-      (exec-path-from-shell-initialize)
 
-      (setq user-mail-address (getenv "EMAIL"))
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Fonts n' Themes")
+; ────────────────────────────────────────────────────────────────────────────
 
-      ;; Re-initialize the `Info-directory-list' from $INFOPATH.  Since package.el
-      ;; already initializes info, we need to explicitly add the $INFOPATH
-      ;; directories to `Info-directory-list'.  We reverse the list of info paths
-      ;; to prepend them in proper order subsequently
-      (with-eval-after-load 'info
-          (dolist (dir (nreverse (parse-colon-path (getenv "INFOPATH"))))
-            (when dir
-              (add-to-list 'Info-directory-list dir)))))))
+;; Make font bigge, and
+;; Install these 5 packages (rebecca-theme-20180324.821, nova-theme-20180530.1501, hemisu-theme-20130508.1844, dakrone-theme-20170801.1933, dakrone-light-theme-20170808.2140)? (y or n) y
 
-(defun init/windows-init ()
-  "Define Windows specific initializations."
-    (message "INIT: Loading Window config"))
+(when (fboundp 'baw/load-theme-advice)
+  (advice-add 'load-theme
+              :around
+              #'baw/load-theme-advice))
 
-(defun init/unix-init ()
-    "Define other unix specific initializations."
-    (message "INIT: Loading generic UNIX-ish config"))
+(use-package hemisu-theme :ensure t)
+(load-theme 'hemisu-dark)
 
-;;;; Actually setup emacs
 
-;; GUI vs. Terminal
-;; This gets run last
-(add-hook 'after-init-hook (lambda ()
-                             (if (display-graphic-p)
-                                 (init/gui-setup)
-                               (init/terminal-setup))))
+(baw/safe-set-face-font 'default "Inconsolata" 11)
+(baw/safe-set-face-font 'variable-pitch "Symbola" 11)
 
-;; OS
-(cond ((equal system-type 'darwin)
-       (init/darwin-init))
-      ((equal system-type 'windows-nt)
-       (init/windows-init))
-      (t
-       (init/unix-init)))
 
-;; Common
-(init/common-setup)
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Loading key bindings")
+; ────────────────────────────────────────────────────────────────────────────
 
-;; Load all files
-(message "INIT: Loading config files")
+(baw/maybe-load-config "key-bindings" t)
 
-(init/maybe-load-config "00-faces" t)       ; Extra theme / face configuration
-(init/maybe-load-config "05-packages" t)    ; Extra theme / face configuration
-(init/maybe-load-config "10-expansion" t)   ; Text expansion / snippets
-(init/maybe-load-config "20-org" t)         ; Org mode
-(init/maybe-load-config "30-programming" t) ; Programming
-(init/maybe-load-config "40-writing" t)     ; Document generation
-(init/maybe-load-config "99-scratch" t)     ; Misc junk
 
-;; Mail is a bit different, since I haven't solved the mu4e install
-;; issue.  So if it fails to load, just ignore it
-(condition-case nil
-    (init/maybe-load-config "50-mail" t)        ; email
-  (error nil))
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Maybe loading work files")
+; ────────────────────────────────────────────────────────────────────────────
 
-(init/maybe-load-config "90-work" t)        ; Work stuff
+(baw/maybe-load-config "work" t)        ; Work stuff
 
-;; Reset the cons threshhold
-(setq gc-cons-threshold init/original-gc-cons-threshold)
 
-(message "Init loading finished")
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Init loading finished")
+; ────────────────────────────────────────────────────────────────────────────
+
+
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Maybe loading server?")
+; ────────────────────────────────────────────────────────────────────────────
+(load "server")
+(when (not (server-running-p))
+  (init-log "Starting server")
+  (server-start))
 
 (provide 'init)
 ;;; init.el ends here
