@@ -509,8 +509,8 @@
 (load-theme 'hemisu-dark)
 
 
-(baw/safe-set-face-font 'default "Inconsolata" 11)
-(baw/safe-set-face-font 'variable-pitch "Symbola" 11)
+(baw/safe-set-face-font 'default "Inconsolata" 12)
+(baw/safe-set-face-font 'variable-pitch "Symbola" 12)
 
 
 ; ────────────────────────────────────────────────────────────────────────────
