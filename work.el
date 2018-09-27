@@ -39,7 +39,7 @@
       "/opt/oblong/deps-64-12"))
   "Location of g-speak deps.")
 
-(defun init/install-oblong-hooks ()
+(defun work/install-oblong-hooks ()
   "Install any oblong specific hooks."
   (let ((hook (lambda ()
                 (add-to-list 'flycheck-clang-include-path (concat g-speak-home "/include"))
@@ -47,7 +47,7 @@
     (add-hook 'c++-mode-hook hook)
     (add-hook 'c-mode-hook hook)))
 
-(defun init/set-oblong-persona ()
+(defun work/set-oblong-persona ()
   "This is my Oblong persona."
   (progn
     (setq user-mail-address "bwilson@oblong.com")
@@ -55,20 +55,20 @@
     (setq calendar-longitude -71.04949)
     (setq calendar-location-name "Boston, MA")))
 
-(defun init/maybe-load-oblong ()
+(defun work/maybe-load-oblong ()
   "Load oblong configs if on an oblong system."
   (let ((oblong-dir (concat user-emacs-directory "oblong")))
     (message (concat "Checking for oblong customizations @ " oblong-dir))
     (when (file-exists-p oblong-dir)
       (message "Oblong config required, loading...")
-      (init/set-oblong-persona)
+      (work/set-oblong-persona)
       (add-to-list 'load-path oblong-dir)
-      (init/maybe-load-file (concat oblong-dir "/init.el"))
-      (init/install-oblong-hooks)
-      (init/maybe-load-file (concat oblong-dir "/spruce.el"))
+      (baw/maybe-load-file (concat oblong-dir "/init.el"))
+      (work/install-oblong-hooks)
+      (baw/maybe-load-file (concat oblong-dir "/spruce.el"))
       (message "Oblong load complete."))))
 
-(init/maybe-load-oblong)
+(work/maybe-load-oblong)
 
 (provide '90-work)
 ;;; 90-work.el ends here
