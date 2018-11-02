@@ -400,6 +400,8 @@
   (interactive)
   (tide-setup)
   (eldoc-mode +1)
+  (setq tide-completion-detailed t)
+  (setq typescript-indent-level 2)
   (tide-hl-identifier-mode +1))
 
 (defun init/tide-mode-before-save-hook ()
@@ -506,7 +508,7 @@
               #'baw/load-theme-advice))
 
 (use-package hemisu-theme :ensure t)
-(load-theme 'hemisu-dark)
+(load-theme 'tsdh-light)
 
 
 (baw/safe-set-face-font 'default "Inconsolata" 12)
