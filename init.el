@@ -62,6 +62,11 @@
 (setq-default indent-tabs-mode nil)    ; Prevent tabs by default
 (setq-default tab-width 2)             ; If we are using tabs, make them small
 
+(setq dabbrev-always-check-other-buffers t)
+(setq dabbrev-abbrev-char-regexp "\\sw\\|\\s_")
+(setq dabbrev-case-fold-search nil)
+(setq dabbrev-case-replace nil)
+(require 'dabbrev)
 
 ;; Complex
 
@@ -182,6 +187,12 @@
   :ensure t
   :config (progn
             (global-set-key (kbd "C-=") 'er/expand-region)))
+
+;; Text mode
+(add-hook 'text-mode-hook
+	  (lambda ()
+	    (set (make-local-variable 'dabbrev-case-fold-search) t)
+	    (set (make-local-variable 'dabbrev-case-replace) t)))
 
 (use-package pandoc-mode :defer t :ensure t)
 
