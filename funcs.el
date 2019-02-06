@@ -54,7 +54,7 @@ If IGNORE-MISSING-P is true then don't warn if we can't find the file."
   "Create a new scratch `org-mode' buffer."
   (interactive)
   (save-excursion
-    (switch-to-buffer (get-buffer-create *init/org-scratch-buffer-name*))
+    (switch-to-buffer (get-buffer-create *baw/org-scratch-buffer-name*))
     (org-mode)
     (insert "#+TITLE: Org-Mode scratch buffer for notes\n\n")
     (insert (concat "* Notes for " (format-time-string "%Y-%m-%d")))

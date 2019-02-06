@@ -31,7 +31,7 @@
 
 ;;;; First things first
 (defun init-log (message)
-  "Force log messages to be visible in messages buffer"
+  "Force log MESSAGE to be visible in messages buffer."
   (concat "--- INIT: " message))
 
 
@@ -40,7 +40,7 @@
 ; ────────────────────────────────────────────────────────────────────────────
 
 (load (concat user-emacs-directory "funcs.el"))
-
+(baw/maybe-load-file "~/src/elisp/loader" t t)
 
 ; ────────────────────────────────────────────────────────────────────────────
 (init-log "Emacs variable configuration")
@@ -153,6 +153,16 @@
               (lambda ()
                 (setq Info-additional-directory-list Info-default-directory-list)))
     (add-hook 'Info-selection-hook 'info-colors-fontify-node)))
+
+(use-package projectile
+  :ensure t
+  :config
+  (progn
+    (projectile-mode +1)
+    ; (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
+  :diminish (projectile-mode . "ⓟ"))
+
 
 (use-package ag
   :defer t
@@ -298,7 +308,10 @@
           (add-hook 'c++-mode-hook (lambda () (setq flycheck-clang-language-standard "c++14")))
           (setq flycheck-c/c++-clang-executable "~/LLVM/latest/bin/clang")
           (setq flycheck-c/c++-clang-executable "~/LLVM/latest/bin/clang")
-          (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-gcc))))
+          (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-gcc)))
+  :config (progn
+          ;; enable typescript-tslint checker
+          (flycheck-add-mode 'typescript-tslint 'web-mode)))
 
 (use-package company
   :ensure t
@@ -431,14 +444,14 @@
 
             ;; formats the buffer before saving
             (add-hook 'before-save-hook #'init/tide-mode-before-save-hook)
-            (add-hook 'typescript-mode-hook #'init/setup-tide-mode))
-  :defer t)
+            (add-hook 'typescript-mode-hook #'init/setup-tide-mode)))
 
 (use-package web :ensure t :defer t)             ; Make web requests
 
 (use-package web-mode                            ; Mixing HTML and Scripts
   :defer t
   :ensure t
+  :after tide
   :init
   (progn
     (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
@@ -448,7 +461,13 @@
     (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
     (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
     (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))))
+    (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+
+    (add-hook 'web-mode-hook
+              (lambda ()
+                (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                  (setup-tide-mode))))))
 
 ;;;; Python
 (use-package elpy
@@ -505,25 +524,65 @@
   :disabled
   :ensure t)
 
+(use-package sly
+  :defer t
+  :ensure t)
+
 
 ; ────────────────────────────────────────────────────────────────────────────
 (init-log "Fonts n' Themes")
 ; ────────────────────────────────────────────────────────────────────────────
 
-;; Make font bigge, and
-;; Install these 5 packages (rebecca-theme-20180324.821, nova-theme-20180530.1501, hemisu-theme-20130508.1844, dakrone-theme-20170801.1933, dakrone-light-theme-20170808.2140)? (y or n) y
+;; These are some stale notes that I don't remember what they are...
+;; Make font bigger, and Install these 5 packages (rebecca-theme-20180324.821,
+;; nova-theme-20180530.1501, hemisu-theme-20130508.1844,
+;; dakrone-theme-20170801.1933, dakrone-light-theme-20170808.2140)? (y or n) y
+
+;; Some notes on themes
+;; Poet is a good document theme, but it can get a little tiresome on the eyes
+;; tsdh-light is also a good light theme
+;; hemisu-theme is also a favorite, however
+;; the lab-themes have both a light and a dark varient that I've been enjoying.
 
 (when (fboundp 'baw/load-theme-advice)
   (advice-add 'load-theme
               :around
               #'baw/load-theme-advice))
 
-(use-package hemisu-theme :ensure t)
-(load-theme 'tsdh-light)
+(use-package lab-themes :ensure t)
+(load-theme 'lab-dark)
 
+(use-package olivetti
+  :ensure t
+  :defer t
+  :preface
+  (defun olivetti-config ()
+    (variable-pitch-mode 1)
+ 	  (olivetti-mode 1)
+ 	  (olivetti-set-width 0.75))
+  :hook ((text-mode . olivetti-config)
+          (Info-mode . (lambda () (olivetti-mode)))))
 
-(baw/safe-set-face-font 'default "Inconsolata" 12)
+(baw/safe-set-face-font 'default "Source Code Pro" 12)
 (baw/safe-set-face-font 'variable-pitch "Symbola" 12)
+
+;; Dashboard
+(use-package dashboard
+  :ensure t
+  :demand
+  :preface
+  (defun my/dashboard-banner ()
+    "Dashboard banner."
+    (setq dashboard-banner-logo-title (baw/current-date-time-string)))
+  :config
+  ;; (setq dashboard-startup-banner 'logo)
+  ;; (setq dashboard-startup-banner "~/.emacs.d/oblong/ob-logo-dark.png")
+  (setq dashboard-startup-banner "~/.emacs.d/logo.png")
+  (setq dashboard-banner-logo-title (my/dashboard-banner)); "Brian is at work, on ...")
+  (dashboard-setup-startup-hook))
+  ;; :hook ((after-init     . dashboard-refresh-buffer)
+  ;;       (dashboard-mode . my/dashboard-banner)))
+
 
 
 ; ────────────────────────────────────────────────────────────────────────────

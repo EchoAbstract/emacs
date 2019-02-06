@@ -1,4 +1,4 @@
-;;; 90-work.el --- Load work specific stuff             -*- lexical-binding: t; -*-
+;;; work.el --- Load work specific stuff             -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2018  Brian Wilson
 
@@ -23,6 +23,8 @@
 ;; This is a place holder for the current work's specific config
 
 ;;; Code:
+
+(require 'funcs)
 
 ;; Oblong
 (defvar g-speak-home
@@ -70,5 +72,5 @@
 
 (work/maybe-load-oblong)
 
-(provide '90-work)
-;;; 90-work.el ends here
+(provide 'work)
+;;; work.el ends here
