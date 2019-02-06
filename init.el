@@ -42,6 +42,9 @@
 (load (concat user-emacs-directory "funcs.el"))
 (baw/maybe-load-file "~/src/elisp/loader" t t)
 
+(when (fboundp 'baw/load-all)
+  (baw/load-all))
+
 ; ────────────────────────────────────────────────────────────────────────────
 (init-log "Emacs variable configuration")
 ; ────────────────────────────────────────────────────────────────────────────
