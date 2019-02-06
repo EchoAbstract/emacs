@@ -573,7 +573,8 @@
   :preface
   (defun my/dashboard-banner ()
     "Dashboard banner."
-    (setq dashboard-banner-logo-title (baw/current-date-time-string)))
+    (setq dashboard-banner-logo-title (when (fboundp 'baw/formatted-date-time-string)
+                                        (baw/formatted-date-time-string))))
   :config
   ;; (setq dashboard-startup-banner 'logo)
   ;; (setq dashboard-startup-banner "~/.emacs.d/oblong/ob-logo-dark.png")
