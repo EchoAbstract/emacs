@@ -316,6 +316,18 @@
           ;; enable typescript-tslint checker
           (flycheck-add-mode 'typescript-tslint 'web-mode)))
 
+(use-package lsp-mode
+  :ensure t
+  :commands lsp)
+
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode)
+
+(use-package company-lsp
+  :ensure t
+  :commands company-lsp)
+
 (use-package company
   :ensure t
   :init (progn
@@ -392,7 +404,8 @@
           (lambda ()
             (setq ff-ignore-include t) ; I don't want this to jump to includes
             (setq ff-other-file-alist init/cpp-other-file-alist)
-            (setq compilation-scroll-output t)))
+            (setq compilation-scroll-output t)
+            (lsp)))
 
 (use-package modern-cpp-font-lock
   :ensure t
@@ -422,39 +435,39 @@
             (add-hook 'js2-mode-hook #'init/js-common-hooks)))
 
 ;; TypeScript
-(defun init/setup-tide-mode ()
-  "Setup TypeScript Interactive Development Environment for Emacs."
-  (interactive)
-  (tide-setup)
-  (eldoc-mode +1)
-  (setq tide-completion-detailed t)
-  (setq typescript-indent-level 2)
-  (tide-hl-identifier-mode +1))
+;; (defun init/setup-tide-mode ()
+;;   "Setup TypeScript Interactive Development Environment for Emacs."
+;;   (interactive)
+;;   (tide-setup)
+;;   (eldoc-mode +1)
+;;   (setq tide-completion-detailed t)
+;;   (setq typescript-indent-level 2)
+;;   (tide-hl-identifier-mode +1))
 
-(defun init/tide-mode-before-save-hook ()
-  "If we're in TypeScript mode, format before saving."
-  (when (eq major-mode 'typescript)
-    (tide-format-before-save)))
+;; (defun init/tide-mode-before-save-hook ()
+;;   "If we're in TypeScript mode, format before saving."
+;;   (when (eq major-mode 'typescript)
+;;     (tide-format-before-save)))
 
-(use-package tide
-  :ensure t
-  :init (progn
-          (add-hook 'typescript-mode-hook #'init/setup-tide-mode))
-  :config (progn
+;; (use-package tide
+;;   :ensure t
+;;   :init (progn
+;;           (add-hook 'typescript-mode-hook #'init/setup-tide-mode))
+;;   :config (progn
 
-            ;; aligns annotation to the right hand side
-            (setq company-tooltip-align-annotations t) ; FIXME(brian): This feels wrong...
+;;             ;; aligns annotation to the right hand side
+;;             (setq company-tooltip-align-annotations t) ; FIXME(brian): This feels wrong...
 
-            ;; formats the buffer before saving
-            (add-hook 'before-save-hook #'init/tide-mode-before-save-hook)
-            (add-hook 'typescript-mode-hook #'init/setup-tide-mode)))
+;;             ;; formats the buffer before saving
+;;             (add-hook 'before-save-hook #'init/tide-mode-before-save-hook)
+;;             (add-hook 'typescript-mode-hook #'init/setup-tide-mode)))
 
 (use-package web :ensure t :defer t)             ; Make web requests
 
 (use-package web-mode                            ; Mixing HTML and Scripts
   :defer t
   :ensure t
-  :after tide
+  ;; :after tide
   :init
   (progn
     (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
@@ -467,12 +480,13 @@
     (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
     (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
 
-    (add-hook 'web-mode-hook
-              (lambda ()
-                (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                  (init/setup-tide-mode))))
-    (when (fboundp 'flycheck-add-mode)
-      (flycheck-add-mode 'typescript-tslint 'web-mode))))
+    (add-hook 'web-mode-hook #'lsp)))
+    ;; (add-hook 'web-mode-hook
+    ;;           (lambda ()
+    ;;             (when (string-equal "tsx" (file-name-extension buffer-file-name))
+    ;;               (init/setup-tide-mode))))
+    ;; (when (fboundp 'flycheck-add-mode)
+    ;;   (flycheck-add-mode 'typescript-tslint 'web-mode))))
 
 ;;;; Python
 (use-package elpy
