@@ -470,7 +470,9 @@
     (add-hook 'web-mode-hook
               (lambda ()
                 (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                  (setup-tide-mode))))))
+                  (init/setup-tide-mode))))
+    (when (fboundp 'flycheck-add-mode)
+      (flycheck-add-mode 'typescript-tslint 'web-mode))))
 
 ;;;; Python
 (use-package elpy
@@ -552,8 +554,10 @@
               :around
               #'baw/load-theme-advice))
 
-(use-package lab-themes :ensure t)
-(load-theme 'lab-dark)
+;; (use-package lab-themes :ensure t)
+;; (load-theme 'lab-dark)
+(use-package brutalist-theme :ensure t)
+(load-theme 'brutalist)
 
 (use-package olivetti
   :ensure t
