@@ -52,11 +52,14 @@
 ;; Simple
 (setq backup-by-copying t)       ; don't clobber symlinks
 (setq backup-directory-alist'(("." . "/tmp/emacs")))
+(setq default-major-mode 'text-mode)    ; Text-mode is better than fundamental
 (setq delete-old-versions t)     ; limit how much space we take up
+(setq indent-tab-width 2)        ; Yet another tab default of 2
 (setq inhibit-startup-screen t)  ; I'll miss it, but it no longer works for me
 (setq kept-new-versions 6)       ; keep more from this session
 (setq kept-old-versions 2)       ; keep less from last session
 (setq load-prefer-newer t)       ; Load .el if newer than .elc
+(setq scroll-step 1)             ; Only scroll 1 new-line at EOF
 (setq suggest-key-bindings t)    ; Teach me about new bindings
 (setq version-control nil)       ; Don't version the backup files
 (setq visible-bell t)            ; Don't beep
@@ -94,6 +97,11 @@
 ;; Don't make me type out `yes'
 (fset 'yes-or-no-p 'y-or-n-p)   ; Make y/n prompts easier
 
+;; Update copyright if able
+(add-hook 'write-file-hooks 'copyright-update)
+
+;; Don't prompt, just revert
+(global-auto-revert-mode 1)
 
 ; ────────────────────────────────────────────────────────────────────────────
 (init-log "GUI / TUI config")
@@ -163,9 +171,9 @@
   (progn
     (projectile-mode +1)
     ; (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
-    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map))
+    (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+    (add-to-list 'projectile-globally-ignored-directories ".cquery_cached_index"))
   :diminish (projectile-mode . "ⓟ"))
-
 
 (use-package ag
   :defer t
@@ -201,11 +209,34 @@
   :config (progn
             (global-set-key (kbd "C-=") 'er/expand-region)))
 
+;; LSP
+(use-package lsp-mode
+  :ensure t
+  :commands lsp
+  :config (progn
+            (require 'lsp-clients)
+            (setq lsp-prefer-flymake nil)))
+
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode
+  :config (progn
+            (setq lsp-ui-sideline-enable nil)))
+
+(use-package company-lsp
+  :ensure t
+  :commands company-lsp
+  :config (progn
+            (setq company-lsp-cache-candidates t)))
+
+
 ;; Text mode
 (add-hook 'text-mode-hook
 	  (lambda ()
 	    (set (make-local-variable 'dabbrev-case-fold-search) t)
-	    (set (make-local-variable 'dabbrev-case-replace) t)))
+	    (set (make-local-variable 'dabbrev-case-replace) t)
+      (text-mode-hook-identify)
+      (turn-on-auto-fill)))
 
 (use-package pandoc-mode :defer t :ensure t)
 
@@ -305,38 +336,32 @@
 (use-package flycheck
   :defer t
   :ensure t
-  :diminish (flycheck-mode . "Ⓕ")
-  :init (progn
-          (add-hook 'after-init-hook #'global-flycheck-mode)
-          (add-hook 'c++-mode-hook (lambda () (setq flycheck-clang-language-standard "c++14")))
-          (setq flycheck-c/c++-clang-executable "~/LLVM/latest/bin/clang")
-          (setq flycheck-c/c++-clang-executable "~/LLVM/latest/bin/clang")
-          (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-gcc)))
-  :config (progn
-          ;; enable typescript-tslint checker
-          (flycheck-add-mode 'typescript-tslint 'web-mode)))
+  :diminish (flycheck-mode . "Ⓕ"))
 
-(use-package lsp-mode
-  :ensure t
-  :commands lsp)
-
-(use-package lsp-ui
-  :ensure t
-  :commands lsp-ui-mode)
-
-(use-package company-lsp
-  :ensure t
-  :commands company-lsp)
+;; (use-package flycheck
+;;   :defer t
+;;   :ensure t
+;;   :diminish (flycheck-mode . "Ⓕ")
+;;   :init (progn
+;;           (add-hook 'after-init-hook #'global-flycheck-mode)
+;;           (add-hook 'c++-mode-hook (lambda () (setq flycheck-clang-language-standard "c++14")))
+;;           (setq flycheck-c/c++-clang-executable "~/LLVM/latest/bin/clang")
+;;           (setq flycheck-c/c++-clang-executable "~/LLVM/latest/bin/clang")
+;;           (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-gcc)))
+;;   :config (progn
+;;           ;; enable typescript-tslint checker
+;;           (flycheck-add-mode 'typescript-tslint 'web-mode)))
 
 (use-package company
   :ensure t
   :init (progn
           (add-hook 'after-init-hook #'global-company-mode))
   :config (progn
-            (setq company-idle-delay              2
-                  company-minimum-prefix-length   2
-                  company-show-numbers            t
-                  company-tooltip-limit           20
+            (setq company-idle-delay                2
+                  company-minimum-prefix-length     2
+                  company-show-numbers              t
+                  company-tooltip-limit             20
+                  company-tooltip-align-annotations t
                   ;; From the info page
                   ;; If you set this value to nil, you may also want to set
                   ;; ‘company-dabbrev-ignore-case’ to any value other than ‘keep-prefix’.
@@ -350,6 +375,10 @@
 ;;;; shell-scripting
 (add-hook 'after-save-hook
           'executable-make-buffer-file-executable-if-script-p)
+
+(use-package lsp-sh
+  :ensure t
+  :init (add-hook 'shell-mode-hook 'lsp))
 
 ;;;; elisp
 (use-package f :defer t :ensure t)               ; Modern File API
@@ -391,20 +420,38 @@
 
 (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
 
+(use-package cquery
+  :ensure t
+  :defer t)
+
 (setq init/cpp-other-file-alist
-  '(("\\.cpp\\'" (".h" ".hpp" ".hh"))
-    ("\\.hpp\\'" (".cpp" ".cc"))
-    ("\\.cc\\'" (".h" ".hh"))
-    ("\\.hh\\'" (".cc" ".cpp"))
-    ("\\.c\\'" (".h"))
-    ("\\.C\\'" (".h"))
-    ("\\.h\\'" (".cpp" ".cc" ".c" ".C"))))
+      '(("\\.cc$" (".hh" ".h"))
+        ("\\.hh$" (".cc" ".C"))
+        ("\\.c$" (".h"))
+        ("\\.h$" (".c" ".cc" ".C" ".CC" ".cxx" ".cpp" ".m"))
+        ("\\.C$" (".h" ".hh" ".H"))
+        ("\\.H$" (".C" ".CC"))
+        ("\\.CC$" (".HH" ".H" ".hh" ".h"))
+        ("\\.HH$" (".CC"))
+        ("\\.cxx$" (".hh" ".h"))
+        ("\\.cpp$" (".hh" ".h" ".hpp"))
+        ("\\.hpp$" (".cpp"))))
+;; (setq init/cpp-other-file-alist
+;;   '(("\\.cpp\\'" (".h" ".hpp" ".hh"))
+;;     ("\\.hpp\\'" (".cpp"))
+;;     ("\\.cc\\'" (".hh" ".h"))
+;;     ("\\.hh\\'" (".cc" ".cpp" ".C"))
+;;     ("\\.c\\'" (".h"))
+;;     ("\\.C\\'" (".h"))
+;;     ("\\.h\\'" (".cpp" ".cc" ".c" ".C"))))
 
 (add-hook 'c-mode-common-hook
           (lambda ()
             (setq ff-ignore-include t) ; I don't want this to jump to includes
             (setq ff-other-file-alist init/cpp-other-file-alist)
             (setq compilation-scroll-output t)
+            (setq c-basic-offset 2)
+            (setq c-default-style "gnu")
             (lsp)))
 
 (use-package modern-cpp-font-lock
@@ -417,85 +464,87 @@
 
 ;; For CSS and other programming stuff we like to
 ;; see colors
+(use-package lsp-css
+  :defer t
+  :ensure t
+  :init (progn
+          ;; Set css tab width to 2
+          (add-hook 'css-mode-hook (lambda ()
+                                     (setq css-indent-offset 2)
+                                     (lsp)))))
+
 (use-package rainbow-mode
   :ensure t)
 
 (defun init/js-common-hooks ()
   "Common code after JS modes load."
   (subword-mode 1)
-  (setq js2-basic-offset 2))
+  (setq js2-basic-offset 2)
+  (lsp))
 
 (use-package js2-mode
   :defer t
   :ensure t
   :init (progn
             (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+            (add-to-list 'auto-mode-alist '("\\.jsx\\'" . js2-jsx-mode))
             (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
             (setq-default js2-basic-offset 2)
+            (setq js-indent-level 2)
             (add-hook 'js2-mode-hook #'init/js-common-hooks)))
 
-;; TypeScript
-;; (defun init/setup-tide-mode ()
-;;   "Setup TypeScript Interactive Development Environment for Emacs."
-;;   (interactive)
-;;   (tide-setup)
-;;   (eldoc-mode +1)
-;;   (setq tide-completion-detailed t)
-;;   (setq typescript-indent-level 2)
-;;   (tide-hl-identifier-mode +1))
+(use-package vue-mode
+  :defer t
+  :ensure t
+  :init (progn
+          (add-to-list 'auto-mode-alist '("\\.vue\\'" . vue-mode))))
 
-;; (defun init/tide-mode-before-save-hook ()
-;;   "If we're in TypeScript mode, format before saving."
-;;   (when (eq major-mode 'typescript)
-;;     (tide-format-before-save)))
 
-;; (use-package tide
-;;   :ensure t
-;;   :init (progn
-;;           (add-hook 'typescript-mode-hook #'init/setup-tide-mode))
-;;   :config (progn
-
-;;             ;; aligns annotation to the right hand side
-;;             (setq company-tooltip-align-annotations t) ; FIXME(brian): This feels wrong...
-
-;;             ;; formats the buffer before saving
-;;             (add-hook 'before-save-hook #'init/tide-mode-before-save-hook)
-;;             (add-hook 'typescript-mode-hook #'init/setup-tide-mode)))
+(use-package typescript-mode
+  :defer t
+  :ensure t
+  :init (progn
+          (setq-default typescript-indent-level 2)
+          (add-hook 'typescript-mode-hook 'lsp)
+          (add-hook 'typescript-mode-hook (lambda ()
+                                            (setq typescript-indent-level 2)
+                                            (subword-mode)
+                                            (lsp)))
+          (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))))
 
 (use-package web :ensure t :defer t)             ; Make web requests
+
+(defun init/web-mode-hook ()
+  "Brian's Web Mode hook."
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-indent-style 2)
+  (lsp))
+
 
 (use-package web-mode                            ; Mixing HTML and Scripts
   :defer t
   :ensure t
-  ;; :after tide
-  :init
-  (progn
-    (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
-    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-
-    (add-hook 'web-mode-hook #'lsp)))
-    ;; (add-hook 'web-mode-hook
-    ;;           (lambda ()
-    ;;             (when (string-equal "tsx" (file-name-extension buffer-file-name))
-    ;;               (init/setup-tide-mode))))
-    ;; (when (fboundp 'flycheck-add-mode)
-    ;;   (flycheck-add-mode 'typescript-tslint 'web-mode))))
+  :init (progn
+          (add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+          (add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+          (add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+          (add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+          (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+          (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+          (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+          (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+          (add-hook 'web-mode-hook #'init/web-mode-hook)))
 
 ;;;; Python
-(use-package elpy
-  :ensure t
-  :after python
-  :config
-  (elpy-enable)
-  )
+(setq python-shell-interpreter "ipython3")
+(setq python-shell-completion-native-enable nil)
 
+(use-package lsp-python
+  :ensure t
+  :init (progn
+          (add-hook 'python-mode-hook 'lsp)))
 
 ;;;; golang
 
@@ -568,10 +617,8 @@
               :around
               #'baw/load-theme-advice))
 
-;; (use-package lab-themes :ensure t)
-;; (load-theme 'lab-dark)
-(use-package brutalist-theme :ensure t)
-(load-theme 'brutalist)
+(use-package hemisu-theme :ensure t)
+(load-theme 'hemisu-light)
 
 (use-package olivetti
   :ensure t
