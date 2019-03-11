@@ -1,6 +1,6 @@
 ;;; init.el --- Emacs configuration of Brian Wilson -*- lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2018 Brian Wilson <brian@polytopes.me>
+;; Copyright (c) 2018, 2019 Brian Wilson <brian@polytopes.me>
 ;;
 ;; Author: Brian Wilson <brian@polytopes.me>
 ;; URL: https://gihub.com/EchoAbstract/emacs
@@ -652,6 +652,12 @@
 ; ────────────────────────────────────────────────────────────────────────────
 
 (baw/maybe-load-config "key-bindings" t)
+
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Loading org stuff")
+; ────────────────────────────────────────────────────────────────────────────
+
+(baw/maybe-load-config "org" t)
 
 
 ; ────────────────────────────────────────────────────────────────────────────
