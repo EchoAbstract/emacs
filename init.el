@@ -375,10 +375,7 @@
 ;;;; shell-scripting
 (add-hook 'after-save-hook
           'executable-make-buffer-file-executable-if-script-p)
-
-(use-package lsp-sh
-  :ensure t
-  :init (add-hook 'shell-mode-hook 'lsp))
+(add-hook 'shell-mode-hook 'lsp)
 
 ;;;; elisp
 (use-package f :defer t :ensure t)               ; Modern File API
@@ -540,11 +537,7 @@
 ;;;; Python
 (setq python-shell-interpreter "ipython3")
 (setq python-shell-completion-native-enable nil)
-
-(use-package lsp-python
-  :ensure t
-  :init (progn
-          (add-hook 'python-mode-hook 'lsp)))
+(add-hook 'python-mode-hook 'lsp)
 
 ;;;; golang
 

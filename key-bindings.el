@@ -62,6 +62,7 @@
 (global-set-key (kbd "C-c o") 'ff-find-other-file)
 (global-set-key (kbd "C-c c") 'compile)
 (global-set-key (kbd "C-c r") 'recompile)
+(global-set-key (kbd "C-c g") 'magit)
   ; (global-set-key (kbd "M-i") 'indent-region)
   ; (global-set-key (kbd "M-p") 'previous-error)
   ; (global-set-key (kbd "M-n") 'next-error)

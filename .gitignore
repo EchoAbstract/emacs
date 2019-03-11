@@ -57,3 +57,7 @@ url/
 custom.el
 recentf
 bookmarks
+
+
+# LSP
+.lsp*
