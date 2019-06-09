@@ -1,4 +1,6 @@
 ;;; org.el ---  Setup Org environment
+(require 'cl)
+
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
 (global-set-key "\C-cl" 'org-store-link)
@@ -31,57 +33,72 @@
 
 (define-key global-map [(control meta ?r)] 'org-capture)
 
-(custom-set-variables
- '(org-completion-use-ido t)
- '(org-agenda-files (quote ("~/Dropbox/org/"
-                            "~/Dropbox/org/oblong/")))
- '(org-agenda-file-regexp "^agenda-.*\\.org$")
- '(org-default-notes-file "~/Dropbox/org/notes.org")
- '(org-agenda-ndays 7)
- '(org-deadline-warning-days 14)
- '(org-agenda-show-all-dates t)
- '(org-agenda-skip-deadline-if-done t)
- '(org-agenda-skip-scheduled-if-done t)
- '(org-agenda-start-on-weekday nil)
- '(org-reverse-note-order t)
- '(org-fast-tag-selection-single-key (quote expert))
- '(org-agenda-custom-commands
-   (quote (("d" todo "DELEGATED" nil)
-           ("c" todo "DONE|DEFERRED|CANCELLED" nil)
-           ("w" todo "WAITING" nil)
-           ("W" agenda "" ((org-agenda-ndays 21)))
-           ("A" agenda ""
-            ((org-agenda-skip-function
-              (lambda nil
-                (org-agenda-skip-entry-if (quote notregexp) "\\=.*\\[#A\\]")))
-             (org-agenda-ndays 1)
-             (org-agenda-overriding-header "Today's Priority #A tasks: ")))
-           ("u" alltodo ""
-            ((org-agenda-skip-function
-              (lambda nil
-                (org-agenda-skip-entry-if (quote scheduled) (quote deadline)
-                                          (quote regexp) "\n]+>")))
-             (org-agenda-overriding-header "Unscheduled TODO entries: "))))))
- '(org-capture-templates
-   (quote (("n"
-            "Notes" entry
-            (file+headline "~/Dropbox/org/notes.org" "Notes")
-            "* %u %?")
-           ("g"
-            "Guile" entry
-            (file+headline "~/Dropbox/org/agenda-guile.org" "Tasks")
-            "* TODO %?\n  %u")
-           ("p"
-            "Personal" entry
-            (file+headline "~/Dropbox/org/agenda-personal.org" "Tasks")
-            "* TODO %?\n  %u")
-           ("o"
-            "Oblong" entry
-            (file+headline "~/Dropbox/org/oblong/agenda-oblong.org" "Tasks")
-            "* TODO %?\n  %u")
-           ("e"
-            "Emacs" entry
-            (file+headline "~/Dropbox/org/oblong/agenda-emacs.org" "Tasks")
-            "* TODO %?\n  %u")))))
+(setq org-directory
+      (if (file-exists-p "~/Dropbox/org")
+          "~/Dropbox/org"
+        "/tmp"))
+
+(defun baw/agenda-file (file)
+  "FILE, but with agenda dir."
+  (concat org-directory "/" file))
+
+(defalias 'baw/setcust 'customize-set-variable)
+
+(baw/setcust 'org-completion-use-ido t)
+
+(baw/setcust 'org-agenda-files
+             (cl-remove-if-not 'file-exists-p
+                               (list org-directory
+                                     (baw/agenda-file "oblong"))))
+
+(baw/setcust 'org-agenda-file-regexp "^agenda-.*\\.org$")
+(baw/setcust 'org-default-notes-file (baw/agenda-file "notes.org"))
+(baw/setcust 'org-agenda-ndays 7)
+(baw/setcust 'org-deadline-warning-days 14)
+(baw/setcust 'org-agenda-show-all-dates t)
+(baw/setcust 'org-agenda-skip-deadline-if-done t)
+(baw/setcust 'org-agenda-skip-scheduled-if-done t)
+(baw/setcust 'org-agenda-start-on-weekday nil)
+(baw/setcust 'org-reverse-note-order t)
+(baw/setcust 'org-fast-tag-selection-single-key 'expert)
+(baw/setcust 'org-agenda-custom-commands
+             (list '("d" todo "DELEGATED" nil)
+                   '("c" todo "DONE|DEFERRED|CANCELLED" nil)
+                   '("w" todo "WAITING" nil)
+                   '("W" agenda "" ((org-agenda-ndays 21)))
+                   '("A" agenda ""
+                     ((org-agenda-skip-function
+                       (lambda nil
+                         (org-agenda-skip-entry-if 'notregexp "\\=.*\\[#A\\]")))
+                      (org-agenda-ndays 1)
+                      (org-agenda-overriding-header "Today's Priority #A tasks: ")))
+                   '("u" alltodo ""
+                     ((org-agenda-skip-function
+                       (lambda nil
+                         (org-agenda-skip-entry-if 'scheduled 'deadline
+                                                   'regexp "\n]+>")))
+                      (org-agenda-overriding-header "Unscheduled TODO entries: ")))))
+
+(baw/setcust 'org-capture-templates
+             `(("n"
+                "Notes" entry
+                (file+headline ,(baw/agenda-file "notes.org") "Notes")
+                "* %u %?")
+               ("g"
+                "Guile" entry
+                (file+headline ,(baw/agenda-file "agenda-guile.org") "Tasks")
+                "* TODO %?\n  %u")
+               ("p"
+                "Personal" entry
+                (file+headline ,(baw/agenda-file "agenda-personal.org") "Tasks")
+                "* TODO %?\n  %u")
+               ("o"
+                "Oblong" entry
+                (file+headline ,(baw/agenda-file "agenda-oblong.org") "Tasks")
+                "* TODO %?\n  %u")
+               ("e"
+                "Emacs" entry
+                (file+headline ,(baw/agenda-file "agenda-emacs.org") "Tasks")
+                "* TODO %?\n  %u")))
 
 ;;; org.el ends here

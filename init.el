@@ -152,7 +152,7 @@
           (ivy-mode 1)
           (setq ivy-use-virtual-buffers t)
           (setq magit-completing-read-function 'ivy-completing-read))
-  :diminish (ivy-mode . "Ⓘ"))
+  :diminish (ivy-mode . "[i]"))
 
 ;; Info mode additions
 (use-package info-colors
@@ -173,7 +173,7 @@
     ; (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
     (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
     (add-to-list 'projectile-globally-ignored-directories ".cquery_cached_index"))
-  :diminish (projectile-mode . "ⓟ"))
+  :diminish (projectile-mode . "[p]"))
 
 (use-package ag
   :defer t
@@ -336,12 +336,12 @@
 (use-package flycheck
   :defer t
   :ensure t
-  :diminish (flycheck-mode . "Ⓕ"))
+  :diminish (flycheck-mode . "[f]"))
 
 ;; (use-package flycheck
 ;;   :defer t
 ;;   :ensure t
-;;   :diminish (flycheck-mode . "Ⓕ")
+;;   :diminish (flycheck-mode . "F")
 ;;   :init (progn
 ;;           (add-hook 'after-init-hook #'global-flycheck-mode)
 ;;           (add-hook 'c++-mode-hook (lambda () (setq flycheck-clang-language-standard "c++14")))
@@ -369,7 +369,7 @@
             (setq company-backends (delete 'company-semantic company-backends))
             ;; (global-set-key (kbd "M-/") 'company-complete)
             (global-set-key (kbd "C-M-i") 'company-complete))
-  :diminish (company-mode . "Ⓒ"))
+  :diminish (company-mode . "[c]"))
 
 
 ;;;; shell-scripting
