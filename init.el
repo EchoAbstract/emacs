@@ -210,8 +210,7 @@
             (global-set-key (kbd "C-=") 'er/expand-region)))
 
 ;; LSP
-(use-package lsp-mode
-  :ensure t
+(use-package lsp
   :commands lsp
   :config (progn
             (require 'lsp-clients)
@@ -458,17 +457,6 @@
 (use-package glsl-mode :defer t :ensure t)
 (use-package clang-format :defer t :ensure t)
 ;;;; Web
-
-;; For CSS and other programming stuff we like to
-;; see colors
-(use-package lsp-css
-  :defer t
-  :ensure t
-  :init (progn
-          ;; Set css tab width to 2
-          (add-hook 'css-mode-hook (lambda ()
-                                     (setq css-indent-offset 2)
-                                     (lsp)))))
 
 (use-package rainbow-mode
   :ensure t)
