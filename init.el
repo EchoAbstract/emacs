@@ -148,6 +148,8 @@
 (eval-when-compile
   (require 'use-package))
 
+(use-package paradox :ensure t)
+
 (use-package diminish :ensure t)
 
 (use-package ivy
@@ -602,8 +604,8 @@
               :around
               #'baw/load-theme-advice))
 
-(use-package hemisu-theme :ensure t)
-(load-theme 'hemisu-light)
+(use-package parchment-theme :ensure t)
+(load-theme 'parchment)
 
 (use-package olivetti
   :ensure t
@@ -612,9 +614,7 @@
   (defun olivetti-config ()
     (variable-pitch-mode 1)
  	  (olivetti-mode 1)
- 	  (olivetti-set-width 0.75))
-  :hook ((text-mode . olivetti-config)
-          (Info-mode . (lambda () (olivetti-mode)))))
+ 	  (olivetti-set-width 0.75)))
 
 (baw/safe-set-face-font 'default "Source Code Pro" 12)
 (baw/safe-set-face-font 'variable-pitch "Symbola" 12)
@@ -628,16 +628,15 @@
     "Dashboard banner."
     (setq dashboard-banner-logo-title (when (fboundp 'baw/formatted-date-time-string)
                                         (baw/formatted-date-time-string))))
+  (defun my/dashboard-logo-path ()
+    "Return path to logo."
+    (cond ((file-exists-p "~/.emacs.d/oblong/ob-logo-dark.png") "~/.emacs.d/oblong/ob-logo-dark.png")  ; Work
+          ((file-exists-p "~/.emacs.d/logo.png")                "~/.emacs.d/logo.png")
+          (t 'logo)))
   :config
-  ;; (setq dashboard-startup-banner 'logo)
-  ;; (setq dashboard-startup-banner "~/.emacs.d/oblong/ob-logo-dark.png")
-  (setq dashboard-startup-banner "~/.emacs.d/logo.png")
+  (setq dashboard-startup-banner (my/dashboard-logo-path))
   (setq dashboard-banner-logo-title (my/dashboard-banner)); "Brian is at work, on ...")
   (dashboard-setup-startup-hook))
-  ;; :hook ((after-init     . dashboard-refresh-buffer)
-  ;;       (dashboard-mode . my/dashboard-banner)))
-
-
 
 ; ────────────────────────────────────────────────────────────────────────────
 (init-log "Loading key bindings")
