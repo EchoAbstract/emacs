@@ -74,13 +74,15 @@
 (setq dabbrev-case-replace nil)
 (require 'dabbrev)
 
+;; Documentation
+(setq Info-additional-directory-list Info-default-directory-list)
+
 ;; Complex
 
 ;; Prevent custom stuff from ending up in a vc controlled file
 (let ((custom-file-location (concat user-emacs-directory "custom.el")))
   (setq custom-file custom-file-location)
   (load custom-file-location t))
-
 
 ; ────────────────────────────────────────────────────────────────────────────
 (init-log "Other built-in customizations")
@@ -159,17 +161,6 @@
           (setq ivy-use-virtual-buffers t)
           (setq magit-completing-read-function 'ivy-completing-read))
   :diminish (ivy-mode . "[i]"))
-
-;; Info mode additions
-(use-package info-colors
-  :defer t
-  :ensure t
-  :config
-  (progn
-    (add-hook 'Info-mode-hook		; After Info-mode has started
-              (lambda ()
-                (setq Info-additional-directory-list Info-default-directory-list)))
-    (add-hook 'Info-selection-hook 'info-colors-fontify-node)))
 
 (use-package projectile
   :ensure t
