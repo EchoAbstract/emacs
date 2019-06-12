@@ -86,13 +86,17 @@
 (init-log "Other built-in customizations")
 ; ────────────────────────────────────────────────────────────────────────────
 
+(defun init/maybe-disable-feature (feature-func)
+  (when (fboundp feature-func)
+    (funcall feature-func -1)))
+
 (column-number-mode 1)      ; What's my current column?
 (display-battery-mode 1)    ; Hopefully this works without a battery?
 (display-time)              ; Full-screen emacs without a time?
 (global-subword-mode)       ; I prefer camel case...
-(scroll-bar-mode -1)        ; No Scrollbars
 (show-paren-mode 1)         ; I like to see my parens
-(tool-bar-mode -1)          ; No toolbars
+(init/maybe-disable-feature 'scroll-bar-mode)          ; No scrollbars
+(init/maybe-disable-feature 'tool-bar-mode)          ; No toolbars
 
 ;; Don't make me type out `yes'
 (fset 'yes-or-no-p 'y-or-n-p)   ; Make y/n prompts easier
