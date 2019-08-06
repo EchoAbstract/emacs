@@ -124,6 +124,8 @@
 (init-log "Platform specific config (pre-packages)")
 ; ────────────────────────────────────────────────────────────────────────────
 
+(require 'gnutls)
+
 (cond ((equal system-type 'darwin)
        (init-log "Darwin/macOS")
        (setq mac-command-modifier 'meta) ; Set META-Key to be CMD
