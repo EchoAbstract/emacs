@@ -127,7 +127,8 @@
 (cond ((equal system-type 'darwin)
        (init-log "Darwin/macOS")
        (setq mac-command-modifier 'meta) ; Set META-Key to be CMD
-       (setq mac-option-modifier 'none)) ; Unset Option so we get fancy inputs
+       (setq mac-option-modifier 'none)  ; Unset Option so we get fancy inputs
+       (add-to-list 'gnutls-trustfiles "/private/etc/ssl/cert.pem")) ; So SSL / TLS works
       ((equal system-type 'windows-nt)
        (init-log "Windows"))
       (t
@@ -607,7 +608,7 @@
  	  (olivetti-mode 1)
  	  (olivetti-set-width 0.75)))
 
-(baw/safe-set-face-font 'default "Source Code Pro" 12)
+(baw/safe-set-face-font 'default "Monoisome" 12)
 (baw/safe-set-face-font 'variable-pitch "Symbola" 12)
 
 ;; Dashboard
