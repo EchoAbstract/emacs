@@ -91,7 +91,7 @@ junk and focus on the mail I need to.
 
 See [[file:wanderlust.el][Wanderlust Config]], this file should be symlinked to ~${HOME}/.wl~.
 
-Much of my config was inspired by [[https://emacs-fu.blogspot.com/2010/02/i-have-been-using-wanderlust-e-mail.html][Emacs-Fu]].
+Much of my config was inspired by [[https://emacs-fu.blogspot.com/2010/02/i-have-been-using-wanderlust-e-mail.html][Emacs-Fu]] and [[http://juanjose.garciaripoll.com/blog/emacs-wanderlust-email][this page.]]
 
 ** Folders
 
