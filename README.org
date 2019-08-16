@@ -81,6 +81,157 @@ I also force ~subword-mode~, as I code with case.
 - ~go get -u golang.org/x/tools/cmd/guru~
 - ~go get -u github.com/dougm/goflymake~
 
+* E-mail!
+
+Yes, I'm one of those unfortunate souls that check e-mail in emacs.  Why, you
+ask?  Well, mostly it's that Google's approach to e-mail is on selling me
+stuff and enabling marketers to reach me.  I'm more interested in the
+interpersonal exchanges via e-mail.  Wanderlust allows me to quickly dump the
+junk and focus on the mail I need to.
+
+See [[file:wanderlust.el][Wanderlust Config]], this file should be symlinked to ~${HOME}/.wl~.
+
+Much of my config was inspired by [[https://emacs-fu.blogspot.com/2010/02/i-have-been-using-wanderlust-e-mail.html][Emacs-Fu]].
+
+** Folders
+
+#+BEGIN_SRC 
+#
+# Folder definition file
+# This file is generated automatically by Wanderlust/2.15.9 (Almost Unreal).
+#
+# If you edit this file by hand, be sure that comment lines
+# will be washed out by wl-fldmgr.
+#
+
+# Main inbox
+%INBOX	                   "Inbox"
++trash  "Trash"
++draft  "Drafts"
+
+# Built-in Gmail Folders
+%[Gmail]/All Mail                   "All Mail"
+%[Gmail]/Important         "Important"
+
+%Needs Action              "Needs Action"
+%Shipping                  "Shipping"
+
+%Box                       "Box"
+%Bugs                      "Bugs"
+
+Gitlab {
+    %GitLab                "Misc"
+    %GitLab/Staging        "Staging"
+    %GitLab/Tasks          "Tasks"
+}
+
+%Meetings                  "Meetings"
+%Platform                  "Platform"
+Projects {
+    %Projects                  "Misc"
+    %Projects/Portland         "Portland"
+}
+
+%Queue                     "Queue"
+%Reference                 "Reference"
+%Sent                      "Sent"
+
+# All other Google folders
+Gmail {
+    %[Gmail]/Sent Mail     "Sent"
+    %[Gmail]/Spam          "Spam"
+    %[Gmail]/Trash         "Trash"
+    %[Gmail]/Drafts        "Drafts"
+}
+
+
+# petname definition (access group, folder in access group)
+
+# end of file.
+#+END_SRC
+
+
+
+** BBDB
+
+[[https://emacs-fu.blogspot.com/2009/08/managing-e-mail-addresses-with-bbdb.html][Emacs-Fu]] has some nice notes on BBDB setup:
+
+#+BEGIN_SRC elisp
+setq bbdb-file "~/.emacs.d/bbdb")           ;; keep ~/ clean; set before loading
+(require 'bbdb) 
+(bbdb-initialize)
+(setq 
+    bbdb-offer-save 1                        ;; 1 means save-without-asking
+
+    
+    bbdb-use-pop-up t                        ;; allow popups for addresses
+    bbdb-electric-p t                        ;; be disposable with SPC
+    bbdb-popup-target-lines  1               ;; very small
+    
+    bbdb-dwim-net-address-allow-redundancy t ;; always use full name
+    bbdb-quiet-about-name-mismatches 2       ;; show name-mismatches 2 secs
+
+    bbdb-always-add-address t                ;; add new addresses to existing...
+                                             ;; ...contacts automatically
+    bbdb-canonicalize-redundant-nets-p t     ;; x@foo.bar.cx => x@bar.cx
+
+    bbdb-completion-type nil                 ;; complete on anything
+
+    bbdb-complete-name-allow-cycling t       ;; cycle through matches
+                                             ;; this only works partially
+
+    bbbd-message-caching-enabled t           ;; be fast
+    bbdb-use-alternate-names t               ;; use AKA
+
+
+    bbdb-elided-display t                    ;; single-line addresses
+
+    ;; auto-create addresses from mail
+    bbdb/mail-auto-create-p 'bbdb-ignore-some-messages-hook   
+    bbdb-ignore-some-messages-alist ;; don't ask about fake addresses
+    ;; NOTE: there can be only one entry per header (such as To, From)
+    ;; http://flex.ee.uec.ac.jp/texi/bbdb/bbdb_11.html
+
+    '(( "From" . "no.?reply\\|DAEMON\\|daemon\\|facebookmail\\|twitter")))
+)
+#+END_SRC
+
+
+** MIME Types
+
+I ``stole'' my config from a [[https://superuser.com/questions/435668/how-to-view-alternate-mime-content-in-wanderlust/484014#484014][Stackoverflow Post]]:
+
+In [[file:wanderlust.el][my .wl file]] I have:
+
+#+BEGIN_SRC elisp
+(setq mime-view-type-subtype-score-alist
+  '(((text . plain) . 4)
+    ((text . enriched) . 3)
+    ((text . html) . 2)
+    ((text . richtext) . 1)))
+#+END_SRC
+
+to set the default priorities (I like plain text better, but just change the
+values if you want html most of the time).
+
+To see the alternate version, I display all the message parts with (in summary
+buffer):
+
+~C-c m~ runs the command ~wl-summary-toggle-mime-buttons~
+
+Which display as:
+
+- ~[1 <text/plain; UTF-8 (7bit)>]~
+- ~[2 <text/html; UTF-8(quoted-printable)>]~
+
+Jumping to the message buffer (~j~), and putting cursor on the appropriate
+button,
+
+~C-c C-t C-c~ runs the command ~mime-preview-toggle-content~
+
+which toggles display of that particular part.
+
+
 * Finally
 
 ** TODOs

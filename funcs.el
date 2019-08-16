@@ -1,6 +1,6 @@
 ;;; funcs.el --- Collection of random lisp functions -*- lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2018 Brian Wilson <brian@polytopes.me>
+;; Copyright (c) 2018, 2019 Brian Wilson <brian@polytopes.me>
 ;;
 ;; Author: Brian Wilson <brian@polytopes.me>
 ;; URL: https://gihub.com/EchoAbstract/emacs
@@ -83,8 +83,9 @@ Pases NO-CONFIRM and NO-ENABLE to `load-theme'."
 
 (defun baw/safe-set-face-font (face font-family font-size)
   "Set the font for FACE to FONT-FAMILY (with FONT-SIZE) if it exists."
-  (when (member font-family (font-family-list))
-    (set-face-font face (concat font-family "-" (number-to-string font-size)))))
+  (if (member font-family (font-family-list))
+      (or (set-face-font face (concat font-family "-" (number-to-string font-size))) t)
+    nil))
 
 (defun baw/insert-shrug ()
   "Insert the shrug guy (¯\_(ツ)_/¯) at point."

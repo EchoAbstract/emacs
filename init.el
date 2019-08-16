@@ -32,7 +32,7 @@
 ;;;; First things first
 (defun init-log (message)
   "Force log MESSAGE to be visible in messages buffer."
-  (concat "--- INIT: " message))
+  (message (concat "--- INIT: " message)))
 
 
 ; ────────────────────────────────────────────────────────────────────────────
@@ -153,17 +153,7 @@
 (eval-when-compile
   (require 'use-package))
 
-(use-package paradox :ensure t)
-
 (use-package diminish :ensure t)
-
-(use-package ivy
-  :ensure t
-  :init (progn
-          (ivy-mode 1)
-          (setq ivy-use-virtual-buffers t)
-          (setq magit-completing-read-function 'ivy-completing-read))
-  :diminish (ivy-mode . "[i]"))
 
 (use-package projectile
   :ensure t
@@ -179,13 +169,17 @@
   :defer t
   :ensure t)
 
-(use-package discover-my-major
-  :defer t
-  :ensure t)
-
 (use-package neotree
   :defer t
-  :ensure t)
+  :ensure t
+  :config (progn
+            (add-to-list 'window-size-change-functions
+                (lambda (frame)
+                  (let ((neo-window (neo-global--get-window)))
+                    (unless (null neo-window)
+                      (setq neo-window-width (window-width neo-window))))))
+            (set-variable neo-window-fixed-size nil)
+            (setq neo-window-fixed-size nil)))
 
 (use-package multi-term
   :defer t
@@ -237,13 +231,14 @@
       (text-mode-hook-identify)
       (turn-on-auto-fill)))
 
-(use-package pandoc-mode :defer t :ensure t)
-
 (use-package markdown-mode
   :defer t
   :ensure t
-  :init (progn
-          (add-to-list 'auto-mode-alist '("\\.md.html\\'" . markdown-mode))))
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.md.html\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode)))
+
 
 ;;; LaTeX with AUCTeX
 (use-package tex-site                   ; AUCTeX initialization
@@ -336,20 +331,6 @@
   :defer t
   :ensure t
   :diminish (flycheck-mode . "[f]"))
-
-;; (use-package flycheck
-;;   :defer t
-;;   :ensure t
-;;   :diminish (flycheck-mode . "F")
-;;   :init (progn
-;;           (add-hook 'after-init-hook #'global-flycheck-mode)
-;;           (add-hook 'c++-mode-hook (lambda () (setq flycheck-clang-language-standard "c++14")))
-;;           (setq flycheck-c/c++-clang-executable "~/LLVM/latest/bin/clang")
-;;           (setq flycheck-c/c++-clang-executable "~/LLVM/latest/bin/clang")
-;;           (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-gcc)))
-;;   :config (progn
-;;           ;; enable typescript-tslint checker
-;;           (flycheck-add-mode 'typescript-tslint 'web-mode)))
 
 (use-package company
   :ensure t
@@ -547,14 +528,6 @@
 (use-package launchctl :defer t :ensure t)
 
 ;;;; Random...
-(use-package clojure-mode
-  :defer t
-  :ensure t)
-
-(use-package cider
-  :disabled
-  :ensure t)
-
 (use-package slime-docker
   :defer t
   :ensure t)
@@ -598,8 +571,9 @@
               :around
               #'baw/load-theme-advice))
 
-(use-package parchment-theme :ensure t)
-(load-theme 'parchment)
+;; (use-package parchment-theme :ensure t)
+;; (load-theme 'parchment)
+(load-theme 'adwaita)
 
 (use-package olivetti
   :ensure t
@@ -610,8 +584,19 @@
  	  (olivetti-mode 1)
  	  (olivetti-set-width 0.75)))
 
-(baw/safe-set-face-font 'default "Monoisome" 12)
-(baw/safe-set-face-font 'variable-pitch "Symbola" 12)
+
+;; Preferred fonts
+(or
+ (baw/safe-set-face-font 'default "Monoisome" 12)
+ (baw/safe-set-face-font 'default "LispM" 12)
+ (baw/safe-set-face-font 'default "OCRA" 12)
+ (baw/safe-set-face-font 'default "OCR-A" 12)
+ (baw/safe-set-face-font 'default "OCR A Extended" 12))
+
+(or (baw/safe-set-face-font 'variable-pitch "Symbola" 12))
+
+(or (baw/safe-set-face-font 'mode-line "Inter UI" 15)
+    (baw/safe-set-face-font 'mode-line "Liberation Serif" 15))
 
 ;; Dashboard
 (use-package dashboard
@@ -655,6 +640,15 @@
 ; ────────────────────────────────────────────────────────────────────────────
 (init-log "Init loading finished")
 ; ────────────────────────────────────────────────────────────────────────────
+
+(require 'ido)
+(ido-mode t)
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+(add-hook 'ibuffer-hook
+          (lambda ()
+            (ibuffer-vc-set-filter-groups-by-vc-root)
+            (unless (eq ibuffer-sorting-mode 'alphabetic)
+              (ibuffer-do-sort-by-alphabetic))))
 
 
 ; ────────────────────────────────────────────────────────────────────────────
