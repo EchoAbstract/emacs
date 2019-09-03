@@ -232,12 +232,60 @@ button,
 which toggles display of that particular part.
 
 
+** Sending
+
+#+BEGIN_SRC elisp
+(setq wl-draft-send-mail-function 'wl-draft-send-mail-with-sendmail
+      sendmail-program "/usr/local/bin/msmtp"
+      message-sendmail-envelope-from 'header
+      mail-envelope-from 'header
+      mail-specify-envelope-from t)
+
+(setq wl-draft-config-alist
+      '(((string-match "^\\.Maildir1" wl-draft-parent-folder)
+         (wl-from . "First name <firstname@gmail.com>")
+         ("From" . wl-from)
+         ("Fcc" . wl-draft-parent-folder)
+         (wl-envelope-from . "firstname@gmail.com"))
+        ; other accounts....
+        ((string-match "^\\.Maild2" wl-draft-parent-folder)
+         (wl-from . "Second name <secondname@gmail.com>")
+         ("From" . wl-from)
+         ("Fcc" . wl-draft-parent-folder)
+         (wl-envelope-from . "secondname@gmail.com"))))
+#+END_SRC
+
+.msmtprc
+#+BEGIN_SRC 
+defaults
+auth	on
+tls	on
+tls_trust_file /private/etc/ssl/cert.pem
+logfile	~/.msmtp.log
+
+
+account default
+host smtp.gmail.com
+port 587
+from Brian Wilson <bwilson@oblong.com>
+user bwilson@oblong.com
+passwordeval "gpg -d --quiet --for-your-eyes-only --no-tty ~/.config/mutt/credentials/oblong.gpg | sed -e '$a\'"
+#+END_SRC
+
 * Finally
 
 ** TODOs
 
 - Org HTML Export :: Not working with this config, but works with no config...
 - macOS :: Add support for the touch bar :-D
+- https://github.com/dabrahams/tempo-snippets.el
+- https://github.com/dabrahams/dotemacs
+- https://github.com/joodland/bm
+- https://marlam.de/msmtp/
+- http://laltromondo.amusewiki.org/informatica/soft/mail_with_wanderlust/
+- xterm-color mode
+- brutalist, constant, birds-of-paradise-plus-theme,  themes
+
 
 ** Included 3rd party code
 
