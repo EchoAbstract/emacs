@@ -283,8 +283,27 @@ passwordeval "gpg -d --quiet --for-your-eyes-only --no-tty ~/.config/mutt/creden
 - https://github.com/joodland/bm
 - https://marlam.de/msmtp/
 - http://laltromondo.amusewiki.org/informatica/soft/mail_with_wanderlust/
-- xterm-color mode
-- brutalist, constant, birds-of-paradise-plus-theme,  themes
+
+*** New Packages
+
+- xterm-color :: https://github.com/atomontage/xterm-color
+
+*** Themes
+
+- Birds of Paradise Plus :: https://github.com/jimeh/birds-of-paradise-plus-theme.el
+- brutalist :: https://git.madhouse-project.org/algernon/brutalist-theme.el
+- constant :: https://github.com/Jannis/emacs-constant-theme
+
+*** Learning
+
+- dir-locals :: https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html
+
+*** Maxima
+
+https://darrenirvine.blogspot.com/2014/08/imaxima-and-slime-in-emacs.html
+http://maxima.sourceforge.net/
+https://mathblog.com/a-10-minute-tutorial-for-solving-math-problems-with-maxima/
+https://www.emacswiki.org/emacs/MaximaMode
 
 
 ** Included 3rd party code
