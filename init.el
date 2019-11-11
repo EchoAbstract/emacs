@@ -205,24 +205,19 @@
   :config (progn
             (global-set-key (kbd "C-=") 'er/expand-region)))
 
-;; LSP
-(use-package lsp
-  :commands lsp
-  :config (progn
-            (require 'lsp-clients)
-            (setq lsp-prefer-flymake nil)))
+;; eglot
 
-(use-package lsp-ui
-  :ensure t
-  :commands lsp-ui-mode
-  :config (progn
-            (setq lsp-ui-sideline-enable nil)))
+(defun projectile-project-find-function (dir)
+  (let* ((root (projectile-project-root dir)))
+    (and root (cons 'transient root))))
 
-(use-package company-lsp
+(use-package eglot
   :ensure t
-  :commands company-lsp
   :config (progn
-            (setq company-lsp-cache-candidates t)))
+            (with-eval-after-load 'project
+              (add-to-list 'project-find-functions 'projectile-project-find-function))))
+
+
 
 
 ;; Text mode
@@ -344,11 +339,13 @@
                   company-show-numbers              t
                   company-tooltip-limit             20
                   company-tooltip-align-annotations t
+                  company-transformers              nil
                   ;; From the info page
                   ;; If you set this value to nil, you may also want to set
                   ;; ‘company-dabbrev-ignore-case’ to any value other than ‘keep-prefix’.
                   company-dabbrev-downcase        nil)
-            (setq company-backends (delete 'company-semantic company-backends))
+            (setq company-backends '(company-capf))
+            ;; (setq company-backends (delete 'company-semantic company-backends))
             ;; (global-set-key (kbd "M-/") 'company-complete)
             (global-set-key (kbd "C-M-i") 'company-complete))
   :diminish (company-mode . "[c]"))
