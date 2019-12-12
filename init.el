@@ -124,9 +124,9 @@
 (init-log "Platform specific config (pre-packages)")
 ; ────────────────────────────────────────────────────────────────────────────
 
-(require 'gnutls)
+;; (require 'gnutls)
 
-(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+;; (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 
 (cond ((equal system-type 'darwin)
        (init-log "Darwin/macOS")
@@ -354,7 +354,6 @@
 ;;;; shell-scripting
 (add-hook 'after-save-hook
           'executable-make-buffer-file-executable-if-script-p)
-(add-hook 'shell-mode-hook 'lsp)
 
 ;;;; elisp
 (use-package f :defer t :ensure t)               ; Modern File API
@@ -427,8 +426,8 @@
             (setq ff-other-file-alist init/cpp-other-file-alist)
             (setq compilation-scroll-output t)
             (setq c-basic-offset 2)
-            (setq c-default-style "gnu")
-            (lsp)))
+            (setq c-default-style "gnu")))
+
 
 (use-package modern-cpp-font-lock
   :ensure t
@@ -444,8 +443,7 @@
 (defun init/js-common-hooks ()
   "Common code after JS modes load."
   (subword-mode 1)
-  (setq js2-basic-offset 2)
-  (lsp))
+  (setq js2-basic-offset 2))
 
 (use-package js2-mode
   :defer t
@@ -470,11 +468,9 @@
   :ensure t
   :init (progn
           (setq-default typescript-indent-level 2)
-          (add-hook 'typescript-mode-hook 'lsp)
           (add-hook 'typescript-mode-hook (lambda ()
                                             (setq typescript-indent-level 2)
-                                            (subword-mode)
-                                            (lsp)))
+                                            (subword-mode)))
           (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))))
 
 (use-package web :ensure t :defer t)             ; Make web requests
@@ -484,8 +480,7 @@
   (setq web-mode-markup-indent-offset 2)
   (setq web-mode-css-indent-offset 2)
   (setq web-mode-code-indent-offset 2)
-  (setq web-mode-indent-style 2)
-  (lsp))
+  (setq web-mode-indent-style 2))
 
 
 (use-package web-mode                            ; Mixing HTML and Scripts
@@ -505,7 +500,6 @@
 ;;;; Python
 (setq python-shell-interpreter "ipython3")
 (setq python-shell-completion-native-enable nil)
-(add-hook 'python-mode-hook 'lsp)
 
 ;;;; golang
 
