@@ -1,6 +1,6 @@
 ;;; funcs.el --- Collection of random lisp functions -*- lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2018, 2019 Brian Wilson <brian@polytopes.me>
+;; Copyright (c) 2018, 2019, 2020 Brian Wilson <brian@polytopes.me>
 ;;
 ;; Author: Brian Wilson <brian@polytopes.me>
 ;; URL: https://gihub.com/EchoAbstract/emacs
@@ -97,6 +97,39 @@ Pases NO-CONFIRM and NO-ENABLE to `load-theme'."
   (interactive)
   (insert (concat comment-start
 	   " ────────────────────────────────────────────────────────────────────────────")))
+
+(defun baw/find-best-command-match (cmds)
+  (mapcar )
+
+;; Taken from: ``esh-cmd.el'', which is a part of Emacs under the GPL
+;; Original name: ``eshell-search-path''
+
+;; Copyright (C) 1999-2019 Free Software Foundation, Inc.
+;; Author: John Wiegley <johnw@gnu.org>
+;; This file is part of GNU Emacs.
+;; This code is unmodified apart from the name
+(defun baw/search-path (name)
+  "Search the environment path for NAME."
+  (if (file-name-absolute-p name)
+      name
+    (let ((list (eshell-parse-colon-path eshell-path-env))
+	  suffixes n1 n2 file)
+      (if (eshell-under-windows-p)
+          (push "." list))
+      (while list
+	(setq n1 (concat (car list) name))
+	(setq suffixes eshell-binary-suffixes)
+	(while suffixes
+	  (setq n2 (concat n1 (car suffixes)))
+	  (if (and (or (file-executable-p n2)
+		       (and eshell-force-execution
+			    (file-readable-p n2)))
+		   (not (file-directory-p n2)))
+	      (setq file n2 suffixes nil list nil))
+	  (setq suffixes (cdr suffixes)))
+	(setq list (cdr list)))
+      file)))
+
 
 (provide 'funcs)
 ;;; funcs.el ends here

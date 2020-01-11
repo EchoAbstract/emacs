@@ -1,6 +1,6 @@
 ;;; init.el --- Emacs configuration of Brian Wilson -*- lexical-binding: t; -*-
 ;;
-;; Copyright (c) 2018, 2019 Brian Wilson <brian@polytopes.me>
+;; Copyright (c) 2018, 2019, 2020 Brian Wilson <brian@polytopes.me>
 ;;
 ;; Author: Brian Wilson <brian@polytopes.me>
 ;; URL: https://gihub.com/EchoAbstract/emacs
@@ -124,15 +124,17 @@
 (init-log "Platform specific config (pre-packages)")
 ; ────────────────────────────────────────────────────────────────────────────
 
-;; (require 'gnutls)
-
-;; (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+(defun baw/darwin-fix-tls ()
+  "Fix the GNUTLS functionality on macOS."
+  (require 'gnutls)
+  (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+  (add-to-list 'gnutls-trustfiles "/private/etc/ssl/cert.pem")) ; So SSL / TLS works
 
 (cond ((equal system-type 'darwin)
        (init-log "Darwin/macOS")
        (setq mac-command-modifier 'meta) ; Set META-Key to be CMD
        (setq mac-option-modifier 'none)  ; Unset Option so we get fancy inputs
-       (add-to-list 'gnutls-trustfiles "/private/etc/ssl/cert.pem")) ; So SSL / TLS works
+       (baw/darwin-fix-tls))
       ((equal system-type 'windows-nt)
        (init-log "Windows"))
       (t
@@ -503,7 +505,13 @@
 
 ;;;; golang
 
-(use-package go-mode :defer t :ensure t)
+(use-package go-mode
+  :defer t
+  :ensure t
+  :config (progn
+            (setq gofmt-command "goimports")
+            (add-hook 'before-save-hook 'gofmt-before-save)))
+
 (use-package flymake-go :defer t :ensure t)
 (use-package go-complete :defer t :ensure t
   :config (progn
