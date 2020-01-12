@@ -98,38 +98,19 @@ Pases NO-CONFIRM and NO-ENABLE to `load-theme'."
   (insert (concat comment-start
 	   " ────────────────────────────────────────────────────────────────────────────")))
 
-(defun baw/find-best-command-match (cmds)
-  (mapcar )
+;; TODO(brian): This seems like the easiest way to handle this cross platform, but
+;;              I should verify this.
+(require 'eshell)
 
-;; Taken from: ``esh-cmd.el'', which is a part of Emacs under the GPL
-;; Original name: ``eshell-search-path''
+(defun baw/find-all-valid-cmds (cmds)
+  "Return any runnable commands in CMDS."
+  (remove-if-not 'eshell-search-path cmds))
 
-;; Copyright (C) 1999-2019 Free Software Foundation, Inc.
-;; Author: John Wiegley <johnw@gnu.org>
-;; This file is part of GNU Emacs.
-;; This code is unmodified apart from the name
-(defun baw/search-path (name)
-  "Search the environment path for NAME."
-  (if (file-name-absolute-p name)
-      name
-    (let ((list (eshell-parse-colon-path eshell-path-env))
-	  suffixes n1 n2 file)
-      (if (eshell-under-windows-p)
-          (push "." list))
-      (while list
-	(setq n1 (concat (car list) name))
-	(setq suffixes eshell-binary-suffixes)
-	(while suffixes
-	  (setq n2 (concat n1 (car suffixes)))
-	  (if (and (or (file-executable-p n2)
-		       (and eshell-force-execution
-			    (file-readable-p n2)))
-		   (not (file-directory-p n2)))
-	      (setq file n2 suffixes nil list nil))
-	  (setq suffixes (cdr suffixes)))
-	(setq list (cdr list)))
-      file)))
-
+(defun baw/find-first-valid-cmd (cmds)
+  "Return the first runnable command in CMDS."
+  (let ((candidates (baw/find-all-valid-cmds cmds)))
+    (when candidates
+      (car candidates))))
 
 (provide 'funcs)
 ;;; funcs.el ends here

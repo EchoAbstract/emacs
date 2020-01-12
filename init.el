@@ -509,8 +509,11 @@
   :defer t
   :ensure t
   :config (progn
-            (setq gofmt-command "goimports")
-            (add-hook 'before-save-hook 'gofmt-before-save)))
+            (let ((fmt-cmd (baw/find-first-valid-cmd '("goimports" "gofmt"))))
+              (when (not fmt-cmd)
+                (warn "It looks like golang's not installed :-/"))
+              (setq gofmt-command fmt-cmd)
+              (add-hook 'before-save-hook 'gofmt-before-save))))
 
 (use-package flymake-go :defer t :ensure t)
 (use-package go-complete :defer t :ensure t
