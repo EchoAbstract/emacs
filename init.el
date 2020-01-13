@@ -134,6 +134,7 @@
        (init-log "Darwin/macOS")
        (setq mac-command-modifier 'meta) ; Set META-Key to be CMD
        (setq mac-option-modifier 'none)  ; Unset Option so we get fancy inputs
+       (setq insert-directory-program (baw/find-first-valid-cmd '("gls" "ls"))) ; use coreutils if available
        (baw/darwin-fix-tls))
       ((equal system-type 'windows-nt)
        (init-log "Windows"))
@@ -181,8 +182,9 @@
                 (lambda (frame)
                   (let ((neo-window (neo-global--get-window)))
                     (unless (null neo-window)
-                      (setq neo-window-width (window-width neo-window))))))
-            (set-variable neo-window-fixed-size nil)
+                      (setq neo-window-width (window-width neo-window))
+                      (set-window-parameter neo-window 'no-other-window t)))))
+            ;; (set-variable neo-window-fixed-size nil)
             (setq neo-window-fixed-size nil)))
 
 (use-package multi-term
