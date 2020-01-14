@@ -29,6 +29,8 @@
 
 ;;; Code:
 
+(require 'cl-seq)
+
 (defun baw/maybe-load-file (file &optional log-p ignore-missing-p)
   "Load FILE only if it exists.
 
@@ -104,7 +106,7 @@ Pases NO-CONFIRM and NO-ENABLE to `load-theme'."
 
 (defun baw/find-all-valid-cmds (cmds)
   "Return any runnable commands in CMDS."
-  (remove-if-not 'eshell-search-path cmds))
+  (cl-remove-if-not 'eshell-search-path cmds))
 
 (defun baw/find-first-valid-cmd (cmds)
   "Return the first runnable command in CMDS."
