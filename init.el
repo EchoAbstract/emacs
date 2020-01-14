@@ -453,8 +453,8 @@
   :defer t
   :ensure t
   :init (progn
-            (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-            (add-to-list 'auto-mode-alist '("\\.jsx\\'" . js2-jsx-mode))
+            ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+            ;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . js2-jsx-mode))
             (add-to-list 'interpreter-mode-alist '("node" . js2-mode))
             (setq-default js2-basic-offset 2)
             (setq js-indent-level 2)
@@ -484,7 +484,10 @@
   (setq web-mode-markup-indent-offset 2)
   (setq web-mode-css-indent-offset 2)
   (setq web-mode-code-indent-offset 2)
-  (setq web-mode-indent-style 2))
+  (setq web-mode-indent-style 2)
+  (subword-mode 1)
+  (setq web-mode-content-types-alist
+        '(("jsx" . "\\.js[x]?\\'"))))
 
 
 (use-package web-mode                            ; Mixing HTML and Scripts
@@ -499,6 +502,8 @@
           (add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
           (add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
           (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+          ;; Is this smart enough to work?
+          (add-to-list 'auto-mode-alist '("\\.jsx?\\'" . web-mode))
           (add-hook 'web-mode-hook #'init/web-mode-hook)))
 
 ;;;; Python
