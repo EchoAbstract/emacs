@@ -83,11 +83,27 @@ Pases NO-CONFIRM and NO-ENABLE to `load-theme'."
   (setq *baw/last-enabled-theme* theme)
   (apply f theme no-confirm no-enable))
 
+(defun baw/font-family-is-available (font-family)
+  "If FONT-FAMILY is available return T, else NIL."
+  (member font-family (font-family-list)))
+
+(defun baw/find-first-available-font (font-list)
+  (let ((candidates (cl-remove-if-not 'baw/font-family-is-available font-list)))
+    (when candidates
+      (car candidates))))
+
 (defun baw/safe-set-face-font (face font-family font-size)
   "Set the font for FACE to FONT-FAMILY (with FONT-SIZE) if it exists."
-  (if (member font-family (font-family-list))
-      (or (set-face-font face (concat font-family "-" (number-to-string font-size))) t)
-    nil))
+  (when (baw/font-family-is-available font-family)
+    (progn (set-face-font face (concat font-family "-" (number-to-string font-size)))
+           t)))
+
+(defun baw/safe-set-fontset-font (fontset font-family font-size)
+  "Set the font for FONTSET to FONT-FAMILY (with FONT-SIZE) if it exists."
+  (when (baw/font-family-is-available font-family)
+    (progn (set-fontset-font fontset nil
+                             (font-spec :size font-size :name font-family))
+          t)))
 
 (defun baw/insert-shrug ()
   "Insert the shrug guy (¯\_(ツ)_/¯) at point."

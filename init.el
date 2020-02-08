@@ -77,6 +77,19 @@
 ;; Documentation
 (setq Info-additional-directory-list Info-default-directory-list)
 
+;; U T F -- 8
+(prefer-coding-system       'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(if (boundp buffer-file-coding-system)
+    (setq buffer-file-coding-system 'utf-8)
+  (setq default-buffer-file-coding-system 'utf-8))
+
+;; Treat clipboard input as UTF-8 string first; compound text next, etc.
+(setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+
+
 ;; Complex
 
 ;; Prevent custom stuff from ending up in a vc controlled file
@@ -596,18 +609,39 @@
  	  (olivetti-set-width 0.75)))
 
 
+;; Fallback font
+(baw/safe-set-fontset-font "fontset-default" "Symbola" 12)
+
 ;; Preferred fonts
+
+;; NOTE: We repeat the function call here so it's easy to see fonts by just
+;; executing the SEXP on each line
+
+;; Fixed Width
 (or
+ (baw/safe-set-face-font 'default "Go Mono" 13)
  (baw/safe-set-face-font 'default "Monoisome" 12)
  (baw/safe-set-face-font 'default "LispM" 12)
  (baw/safe-set-face-font 'default "OCRA" 12)
  (baw/safe-set-face-font 'default "OCR-A" 12)
- (baw/safe-set-face-font 'default "OCR A Extended" 12))
+ (baw/safe-set-face-font 'default "OCR A Extended" 12)
+ (baw/safe-set-face-font 'default "Monaco" 12)
+ (baw/safe-set-face-font 'default "Consolas" 12))
 
-(or (baw/safe-set-face-font 'variable-pitch "Symbola" 12))
 
-(or (baw/safe-set-face-font 'mode-line "Inter UI" 15)
-    (baw/safe-set-face-font 'mode-line "Liberation Serif" 15))
+;; Variable Width
+(or
+ (baw/safe-set-face-font 'variable-pitch "Go Serif" 12)
+ (baw/safe-set-face-font 'variable-pitch "Noto Serif" 12)
+ (baw/safe-set-face-font 'variable-pitch "Symbola" 12)
+ (baw/safe-set-face-font 'variable-pitch "Helvetica" 12)
+ (baw/safe-set-face-font 'variable-pitch "Courier" 12))
+
+
+;; Interface elements
+(or
+ (baw/safe-set-face-font 'mode-line "Inter UI" 15)
+ (baw/safe-set-face-font 'mode-line "Liberation Serif" 15))
 
 ;; Dashboard
 (use-package dashboard
@@ -649,11 +683,16 @@
 
 
 ; ────────────────────────────────────────────────────────────────────────────
-(init-log "Init loading finished")
+(init-log "Buffer Management")
 ; ────────────────────────────────────────────────────────────────────────────
+
+(use-package ibuffer-git :ensure t)
+(use-package ibuffer-projectile :ensure t)
+(use-package ibuffer-vc :ensure t)
 
 (require 'ido)
 (ido-mode t)
+
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (add-hook 'ibuffer-hook
           (lambda ()
@@ -661,6 +700,9 @@
             (unless (eq ibuffer-sorting-mode 'alphabetic)
               (ibuffer-do-sort-by-alphabetic))))
 
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Init loading finished")
+; ────────────────────────────────────────────────────────────────────────────
 
 ; ────────────────────────────────────────────────────────────────────────────
 (init-log "Maybe loading server?")
