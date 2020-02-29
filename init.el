@@ -495,6 +495,11 @@
                                             (subword-mode)))
           (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))))
 
+;; Add eslint defs to compile (if available)
+(when (file-exists-p "~/src/compile-eslint/")
+  (use-package compile-eslint
+    :load-path "~/src/compile-eslint/"
+    :init (push 'eslint compilation-error-regexp-alist)))
 
 (use-package web :ensure t :defer t)             ; Make web requests
 
