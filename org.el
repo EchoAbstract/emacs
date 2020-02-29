@@ -41,40 +41,42 @@
 ;; Font wrangling
 (add-hook 'org-mode-hook (variable-pitch-mode 1)) ; Default to proportional font
 
-(let* ((headline-font (baw/find-first-available-font '("Go Sans"
-                                                       "Inter UI"
-                                                       "Noto Sans"
-                                                       "Helvetica Neue"
-                                                       "Helvetica")))
-       (variable-tuple `(:font ,headline-font))
-       (base-color (face-foreground 'default nil 'default))
-       (headline`(:inherit default :weight bold :foreground ,base-color)))
-  (custom-theme-set-faces
-   'user
-   `(org-level-8 ((t (,@headline ,@variable-tuple))))
-   `(org-level-7 ((t (,@headline ,@variable-tuple))))
-   `(org-level-6 ((t (,@headline ,@variable-tuple))))
-   `(org-level-5 ((t (,@headline ,@variable-tuple))))
-   `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
-   `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.25))))
-   `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.5))))
-   `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.75))))
-   `(org-document-title ((t (,@headline ,@variable-tuple :height 2.0
-                                        :underline nil)))))
+(unless (eq (baw/which-x-toolkit) 'athena)
+  (let* ((headline-font (baw/find-first-available-font '("Go Sans"
+                                                         "Inter UI"
+                                                         "Inter"
+                                                         "Noto Sans"
+                                                         "Helvetica Neue"
+                                                         "Helvetica")))
+         (variable-tuple `(:font ,headline-font))
+         (base-color (face-foreground 'default nil 'default))
+         (headline`(:inherit default :weight bold :foreground ,base-color)))
+    (custom-theme-set-faces
+     'user
+     `(org-level-8 ((t (,@headline ,@variable-tuple))))
+     `(org-level-7 ((t (,@headline ,@variable-tuple))))
+     `(org-level-6 ((t (,@headline ,@variable-tuple))))
+     `(org-level-5 ((t (,@headline ,@variable-tuple))))
+     `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
+     `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.25))))
+     `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.5))))
+     `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.75))))
+     `(org-document-title ((t (,@headline ,@variable-tuple :height 2.0
+                                          :underline nil)))))
 
-  (custom-theme-set-faces
- 'user
- '(org-block ((t (:inherit fixed-pitch))))
- '(org-document-info ((t (:foreground "dark orange"))))
- '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
- '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
- '(org-link ((t (:foreground "royal blue" :underline t))))
- '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
- '(org-property-value ((t (:inherit fixed-pitch))) t)
- '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
- '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
- '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
- '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))))
+    (custom-theme-set-faces
+     'user
+     '(org-block ((t (:inherit fixed-pitch))))
+     '(org-document-info ((t (:foreground "dark orange"))))
+     '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+     '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+     '(org-link ((t (:foreground "royal blue" :underline t))))
+     '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+     '(org-property-value ((t (:inherit fixed-pitch))) t)
+     '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+     '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+     '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+     '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))))
 
 
 

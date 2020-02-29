@@ -76,6 +76,8 @@
 
 ;; Documentation
 (setq Info-additional-directory-list Info-default-directory-list)
+; (use-package info-colors :defer t :ensure t)
+; (add-hook 'Info-selection-hook 'info-colors-fontify-node)
 
 ;; U T F -- 8
 (prefer-coding-system       'utf-8)
@@ -222,8 +224,9 @@
   :config (progn
             (global-set-key (kbd "C-=") 'er/expand-region)))
 
-;; eglot
+(use-package uuidgen :defer t :ensure t)
 
+;; eglot
 (defun projectile-project-find-function (dir)
   (let* ((root (projectile-project-root dir)))
     (and root (cons 'transient root))))
@@ -233,9 +236,6 @@
   :config (progn
             (with-eval-after-load 'project
               (add-to-list 'project-find-functions 'projectile-project-find-function))))
-
-
-
 
 ;; Text mode
 (add-hook 'text-mode-hook
@@ -253,6 +253,10 @@
          ("\\.md.html\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode)))
 
+
+(use-package graphviz-dot-mode
+  :defer t
+  :ensure t)
 
 ;;; LaTeX with AUCTeX
 (use-package tex-site                   ; AUCTeX initialization
@@ -376,18 +380,26 @@
 (use-package f :defer t :ensure t)               ; Modern File API
 (use-package kv :defer t :ensure t)              ; Modern Key-Value API
 
+; Enable Slime-style navigation of elisp symbols using M-. and M-,
 (use-package elisp-slime-nav
   :defer t
   :ensure t)
 
+; Display Emacs Lisp evaluation results overlays.
 (use-package eros
   :defer t
   :ensure t
   :config (eros-mode t))
 
 ;;;; Lisp programming
-(use-package geiser :defer t :ensure t)
-(use-package paredit :defer t :ensure t)
+(use-package geiser :defer t :ensure t) ; Scheme
+(use-package paredit :defer t :ensure t) ; Intelligent paren handling
+(use-package slime-docker :defer t :ensure t) ; Launch a slime image
+(use-package sly :defer t :ensure t)          ; Better slime
+
+;;;; Data interchange formats
+(use-package yaml-mode :defer t :ensure t)
+(use-package yaml-imenu :defer t :ensure t)
 
 ;;;; Building
 (use-package cmake-mode
@@ -398,11 +410,7 @@
   :defer t
   :ensure t)
 
-;;;; Data interchange formats
-(use-package yaml-mode
-  :defer t
-  :ensure t)
-
+;; TODO (brian): Look at xterm-color
 (require 'ansi-color)
 (defun colorize-compilation-buffer ()
   "Filter that ansi-colors compilation region."
@@ -411,10 +419,6 @@
   (read-only-mode 1))
 
 (add-hook 'compilation-filter-hook 'colorize-compilation-buffer)
-
-(use-package cquery
-  :ensure t
-  :defer t)
 
 (setq init/cpp-other-file-alist
       '(("\\.cc$" (".hh" ".h"))
@@ -452,6 +456,7 @@
 
 (use-package glsl-mode :defer t :ensure t)
 (use-package clang-format :defer t :ensure t)
+
 ;;;; Web
 
 (use-package rainbow-mode
@@ -490,6 +495,7 @@
                                             (subword-mode)))
           (add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))))
 
+
 (use-package web :ensure t :defer t)             ; Make web requests
 
 (defun init/web-mode-hook ()
@@ -501,7 +507,6 @@
   (subword-mode 1)
   (setq web-mode-content-types-alist
         '(("jsx" . "\\.js[x]?\\'"))))
-
 
 (use-package web-mode                            ; Mixing HTML and Scripts
   :defer t
@@ -524,7 +529,6 @@
 (setq python-shell-completion-native-enable nil)
 
 ;;;; golang
-
 (use-package go-mode
   :defer t
   :ensure t
@@ -544,18 +548,6 @@
 (use-package go-impl :defer t :ensure t)
 (use-package go-imports :defer t :ensure t)
 
-
-;;;; Ops / Admin
-(use-package docker :defer t :ensure t)
-(use-package dockerfile-mode :defer t :ensure t)
-(use-package systemd :defer t :ensure t)
-(use-package launchctl :defer t :ensure t)
-
-;;;; Random...
-(use-package slime-docker
-  :defer t
-  :ensure t)
-
 ;; Apple's Swift Language
 (use-package swift-mode
   :defer t
@@ -566,14 +558,29 @@
   :defer t
   :ensure t)
 
+;; Basic :-D
+(use-package basic :defer t :ensure t)
+
+;;;; System files
+(use-package fvwm-mode :defer t :ensure t)
+(use-package nginx-mode :defer t :ensure t)
+
+
+;;;; Ops / Admin
+(use-package docker :defer t :ensure t)
+(use-package dockerfile-mode :defer t :ensure t)
+(use-package systemd :defer t :ensure t)
+(use-package launchctl :defer t :ensure t)
+(use-package powershell :defer t :ensure t)
 (use-package kubernetes
   :disabled
   :ensure t)
 
-(use-package sly
-  :defer t
-  :ensure t)
-
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Imenu Enhancements")
+; ────────────────────────────────────────────────────────────────────────────
+(use-package idomenu :defer t :ensure t)
+(use-package imenu-list :defer t :ensure t)
 
 ; ────────────────────────────────────────────────────────────────────────────
 (init-log "Fonts n' Themes")
@@ -589,15 +596,32 @@
 ;; tsdh-light is also a good light theme
 ;; hemisu-theme is also a favorite, however
 ;; the lab-themes have both a light and a dark varient that I've been enjoying.
+;; moe-dark is pretty sweet, and adwaita is a good built-in theme
+
+;; Here are all of the themes I've tried:
+;; birds-of-paradise-plus-theme
+;; brutalist-theme
+;; calmer-forest-theme
+;; constant-theme
+;; exwm
+;; green-is-the-new-black-theme
+;; green-phosphor-theme
+;; green-screen-theme
+;; hemisu-theme
+;; lab-themes
+;; material-theme
+;; moe-theme
+;; parchment-theme
+;; poet-theme
 
 (when (fboundp 'baw/load-theme-advice)
   (advice-add 'load-theme
               :around
               #'baw/load-theme-advice))
 
-;; (use-package parchment-theme :ensure t)
-;; (load-theme 'parchment)
-(load-theme 'adwaita)
+;; (load-theme 'adwaita)
+(use-package moe-theme :ensure t)
+(load-theme 'moe-dark)
 
 (use-package olivetti
   :ensure t
@@ -610,38 +634,41 @@
 
 
 ;; Fallback font
-(baw/safe-set-fontset-font "fontset-default" "Symbola" 12)
+(unless (eq (baw/which-x-toolkit) 'athena)
+  (baw/safe-set-fontset-font "fontset-default" "Symbola" 12))
 
 ;; Preferred fonts
 
 ;; NOTE: We repeat the function call here so it's easy to see fonts by just
 ;; executing the SEXP on each line
 
-;; Fixed Width
-(or
- (baw/safe-set-face-font 'default "Go Mono" 13)
- (baw/safe-set-face-font 'default "Monoisome" 12)
- (baw/safe-set-face-font 'default "LispM" 12)
- (baw/safe-set-face-font 'default "OCRA" 12)
- (baw/safe-set-face-font 'default "OCR-A" 12)
- (baw/safe-set-face-font 'default "OCR A Extended" 12)
- (baw/safe-set-face-font 'default "Monaco" 12)
- (baw/safe-set-face-font 'default "Consolas" 12))
+(unless (eq (baw/which-x-toolkit) 'athena)
+  ;; Fixed Width
+  (or
+   (baw/safe-set-face-font 'default "Go Mono" 13)
+   (baw/safe-set-face-font 'default "Monoisome" 12)
+   (baw/safe-set-face-font 'default "LispM" 12)
+   (baw/safe-set-face-font 'default "OCRA" 12)
+   (baw/safe-set-face-font 'default "OCR-A" 12)
+   (baw/safe-set-face-font 'default "OCR A Extended" 12)
+   (baw/safe-set-face-font 'default "Monaco" 12)
+   (baw/safe-set-face-font 'default "Consolas" 12))
 
 
-;; Variable Width
-(or
- (baw/safe-set-face-font 'variable-pitch "Go Serif" 12)
- (baw/safe-set-face-font 'variable-pitch "Noto Serif" 12)
- (baw/safe-set-face-font 'variable-pitch "Symbola" 12)
- (baw/safe-set-face-font 'variable-pitch "Helvetica" 12)
- (baw/safe-set-face-font 'variable-pitch "Courier" 12))
+  ;; Variable Width
+  (or
+   (baw/safe-set-face-font 'variable-pitch "Go Serif" 12)
+   (baw/safe-set-face-font 'variable-pitch "Noto Serif" 12)
+   (baw/safe-set-face-font 'variable-pitch "Symbola" 12)
+   (baw/safe-set-face-font 'variable-pitch "Helvetica" 12)
+   (baw/safe-set-face-font 'variable-pitch "Courier" 12))
 
 
-;; Interface elements
-(or
- (baw/safe-set-face-font 'mode-line "Inter UI" 15)
- (baw/safe-set-face-font 'mode-line "Liberation Serif" 15))
+  ;; Interface elements
+  (or
+   (baw/safe-set-face-font 'mode-line "Inter UI" 15)
+   (baw/safe-set-face-font 'mode-line "Inter" 15)
+   (baw/safe-set-face-font 'mode-line "Liberation Serif" 15)))
 
 ;; Dashboard
 (use-package dashboard
@@ -674,13 +701,11 @@
 
 (baw/maybe-load-config "org" t)
 
-
 ; ────────────────────────────────────────────────────────────────────────────
 (init-log "Maybe loading work files")
 ; ────────────────────────────────────────────────────────────────────────────
 
 (baw/maybe-load-config "work" t)        ; Work stuff
-
 
 ; ────────────────────────────────────────────────────────────────────────────
 (init-log "Buffer Management")
@@ -699,6 +724,16 @@
             (ibuffer-vc-set-filter-groups-by-vc-root)
             (unless (eq ibuffer-sorting-mode 'alphabetic)
               (ibuffer-do-sort-by-alphabetic))))
+
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "Application Loading")
+; ────────────────────────────────────────────────────────────────────────────
+
+;; Mail
+;; (use-package wanderlust :defer t :ensure t)
+
+;; Hyperbole
+;; (use-package hyperbole :defer t :ensure t)
 
 ; ────────────────────────────────────────────────────────────────────────────
 (init-log "Init loading finished")

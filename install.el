@@ -1,5 +1,4 @@
 
-
 (defvar *pip-install-command*
   "pip3 install"
   "PIP3 command to install a dependency.")
@@ -18,15 +17,20 @@
     "typescript-language-server"
     "vscode-css-languageserver-bin"
     "vscode-html-languageserver-bin"
-    "vue-language-server")
+    "vue-language-server"
+    "javascript-typescript-stdio")
   "NPM packages for node based dependencies.")
+
+(defvar *test-dependencies*
+  '("bash-language-server"))
 
 (defvar *golang-install-command*
   "go get -u"
   "Go command to install a dependency.")
 
 (defvar *golang-dependencies*
-  '("github.com/saibing/bingo")
+  '("github.com/saibing/bingo"
+    "")
   "Go based dependencies.")
 
 (defvar *macOS-install-command*

@@ -130,5 +130,25 @@ Pases NO-CONFIRM and NO-ENABLE to `load-theme'."
     (when candidates
       (car candidates))))
 
+
+(defun baw/which-x-toolkit ()
+  "Return which X toolkit emacs was built with.
+
+Valid responses are (symols):
+
+- gtk
+- motif
+- athena
+- nil (not x11)"
+
+  (let* ((is-x11 (eq window-system 'x))
+         (is-gtk (member 'gtk features))
+         (is-motif (member 'motif features))
+         (is-athena (and is-x11 (not is-motif) (not is-gtk))))
+    (cond (is-gtk 'gtk)
+          (is-motif 'motif)
+          (is-athena 'athena)
+          (t nil))))
+
 (provide 'funcs)
 ;;; funcs.el ends here

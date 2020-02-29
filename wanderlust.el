@@ -65,7 +65,8 @@
         "^Subject"
         "^Date"
         "^To"
-        "^Cc"))
+        "^Cc")
+      wl-auto-save-drafts-interval nil)
 
 (autoload 'wl-user-agent-compose "wl-draft" nil t)
 (if (boundp 'mail-user-agent)
@@ -84,6 +85,34 @@
     ((text . html) . 2)
     ((text . richtext) . 1)))
 
-(require 'bbdb) 
+(require 'bbdb)
 (bbdb-initialize 'wl)
 (bbdb-mua-auto-update-init 'wl)
+
+
+;; Disable v key in the view mode
+(add-hook
+ 'mime-view-mode-hook
+ '(lambda ()
+    "Disable 'v' for mime-play."
+    ;; Key bindings
+    (local-set-key [?v] () )
+    ))
+
+;; Refile with a single keypress
+;; From: https://emacs-fu.blogspot.com/2009/09/wanderlust-tips-and-tricks.html
+(defun baw/wl-summary-refile (&optional folder)
+  "refile the current message to FOLDER; if FOLDER is nil, use the default"
+  (interactive)
+  (wl-summary-refile (wl-summary-message-number) folder)
+  (wl-summary-next)
+  (message "refiled to %s" folder))
+
+;; (define-key wl-summary-mode-map (kbd "b x") ;; => Project X
+;;   '(lambda()(interactive)(djcb-wl-summary-refile ".project-x")))
+
+;; (define-key wl-summary-mode-map (kbd "b y") ;; => Project Y
+;;   '(lambda()(interactive)(djcb-wl-summary-refile ".project-y")))
+
+(define-key wl-summary-mode-map (kbd "b a") ;; => Archive
+  '(lambda()(interactive)(baw/wl-summary-refile "%[Gmail]/All Mail")))
