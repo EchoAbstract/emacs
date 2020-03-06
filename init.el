@@ -564,7 +564,7 @@
   :ensure t)
 
 ;; Basic :-D
-(use-package basic :defer t :ensure t)
+(use-package basic-mode :defer t :ensure t)
 
 ;;;; System files
 (use-package fvwm-mode :defer t :ensure t)
@@ -639,6 +639,9 @@
 
 
 ;; Fallback font
+;; FIXME (brian): This is a gross hack, we should
+;;                make this code cleaner *and*
+;;                make a way to cycle fonts
 (unless (eq (baw/which-x-toolkit) 'athena)
   (baw/safe-set-fontset-font "fontset-default" "Symbola" 12))
 
@@ -729,6 +732,15 @@
             (ibuffer-vc-set-filter-groups-by-vc-root)
             (unless (eq ibuffer-sorting-mode 'alphabetic)
               (ibuffer-do-sort-by-alphabetic))))
+
+
+; ────────────────────────────────────────────────────────────────────────────
+(init-log "File Management")
+; ────────────────────────────────────────────────────────────────────────────
+(use-package dired-git-info
+    :ensure t
+    :bind (:map dired-mode-map
+                (")" . dired-git-info-mode)))
 
 ; ────────────────────────────────────────────────────────────────────────────
 (init-log "Application Loading")
